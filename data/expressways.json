@@ -1,0 +1,164 @@
+{
+  "expressways": [
+    {
+      "id": "nlex",
+      "name": "NLEX",
+      "fullName": "North Luzon Expressway",
+      "operator": "NLEX Corporation",
+      "coverage": "Metro Manila to Pampanga — approx. 84 km",
+      "hotlines": [
+        {
+          "label": "24/7 Emergency",
+          "number": "1-800-10-6353-9"
+        },
+        {
+          "label": "Direct Line",
+          "number": "(044) 220-2116"
+        }
+      ],
+      "patrolNote": "NLEX Patrol units operate 24/7 along the full expressway.",
+      "kmMarkerNote": "Green kilometer markers (KM posts) are visible every 500 meters. Note your KM reading before calling.",
+      "instructions": [
+        "Pull over safely to the right shoulder. Turn on hazard lights immediately.",
+        "Note your kilometer marker — it is displayed on green posts along the road.",
+        "Call the NLEX emergency line. Provide your kilometer marker, direction (northbound or southbound), and vehicle plate number.",
+        "Stay inside your vehicle with your seatbelt on if it is safe to do so.",
+        "Wait for NLEX Patrol — do not walk along the expressway.",
+        "If there are injuries, call 911 in addition to the NLEX emergency line."
+      ],
+      "doNot": [
+        "Do not stop in active traffic lanes.",
+        "Do not walk along the expressway.",
+        "Do not attempt repairs in a traffic lane.",
+        "Do not make U-turns on the expressway."
+      ]
+    },
+    {
+      "id": "slex",
+      "name": "SLEX",
+      "fullName": "South Luzon Expressway",
+      "operator": "MPTC / SLEX Tollways",
+      "coverage": "Metro Manila to Laguna and Quezon Province",
+      "hotlines": [
+        {
+          "label": "24/7 Emergency",
+          "number": "(02) 8580-0000"
+        },
+        {
+          "label": "Breakdown Assistance",
+          "number": "(02) 8580-0020"
+        }
+      ],
+      "patrolNote": "SLEX Road Rangers operate around the clock for breakdowns and accidents.",
+      "kmMarkerNote": "Kilometer markers are posted along the route. Note your kilometer reading and direction when calling.",
+      "instructions": [
+        "Pull to the right emergency lane immediately. Turn on hazard lights.",
+        "Note your kilometer marker and your direction (northbound or southbound).",
+        "Call the SLEX emergency line. Provide your plate number, vehicle type, and exact location.",
+        "If there are injuries, call 911.",
+        "Do not attempt to push or move the vehicle unless directed by road rangers.",
+        "Wait for assistance. Do not flag down passing vehicles on the expressway."
+      ],
+      "doNot": [
+        "Do not stop in live traffic lanes.",
+        "Do not walk or stand on the road.",
+        "Do not self-rescue in dangerous conditions.",
+        "Do not make U-turns."
+      ]
+    },
+    {
+      "id": "skyway",
+      "name": "Skyway",
+      "fullName": "Metro Manila Skyway System",
+      "operator": "San Miguel Corporation / SMCAC",
+      "coverage": "Elevated expressway through Metro Manila (Stages 1, 2, 3)",
+      "hotlines": [
+        {
+          "label": "24/7 Emergency",
+          "number": "(02) 8580-0000"
+        },
+        {
+          "label": "Customer Service",
+          "number": "(02) 8580-0001"
+        }
+      ],
+      "patrolNote": "Skyway patrol units respond to incidents on the elevated road sections.",
+      "kmMarkerNote": "Location markers are posted by segment (Stage 1, 2, or 3). Note the segment and kilometer reading when calling.",
+      "instructions": [
+        "Do not stop in traffic — continue to the nearest designated emergency bay or expressway exit.",
+        "Turn on hazard lights.",
+        "Call the Skyway emergency line immediately.",
+        "Provide your location: segment (Stage 1/2/3), kilometer marker, and direction.",
+        "If injuries are present, call 911.",
+        "Skyway is an elevated road — do not exit the vehicle near the edge or guardrails."
+      ],
+      "doNot": [
+        "Do not stop outside designated emergency bays.",
+        "Do not walk to the edge or past guardrails.",
+        "Do not attempt to push or tow on the elevated section.",
+        "Do not reverse on the expressway."
+      ]
+    },
+    {
+      "id": "sctex",
+      "name": "SCTEX",
+      "fullName": "Subic-Clark-Tarlac Expressway",
+      "operator": "NLEX Corporation",
+      "coverage": "Tarlac to Subic Bay — approx. 94 km",
+      "hotlines": [
+        {
+          "label": "24/7 Emergency",
+          "number": "(045) 649-9555"
+        },
+        {
+          "label": "Toll Operations",
+          "number": "1-800-10-6353-9"
+        }
+      ],
+      "patrolNote": "SCTEX patrol responds to incidents along the full route, though response times may be longer in remote sections.",
+      "kmMarkerNote": "Green kilometer markers are posted every 500 meters. Essential for accurate location reporting on this long route.",
+      "instructions": [
+        "Pull to the right shoulder. Activate hazard lights.",
+        "Note your kilometer marker — this is essential on this long, less-trafficked route.",
+        "Call the SCTEX emergency number. State your kilometer marker, direction, and vehicle details.",
+        "Call 911 for any injuries.",
+        "Stay in the vehicle with doors locked while waiting for patrol.",
+        "SCTEX spans a long distance — wait time for patrol may be longer than urban expressways."
+      ],
+      "doNot": [
+        "Do not walk along the highway.",
+        "Do not stop in the middle of the road.",
+        "Do not hitchhike — wait for official patrol.",
+        "Do not leave the vehicle unattended in an unsafe location."
+      ]
+    },
+    {
+      "id": "tplex",
+      "name": "TPLEX",
+      "fullName": "Tarlac-Pangasinan-La Union Expressway",
+      "operator": "TPLEX Operations",
+      "coverage": "Tarlac to San Juan, La Union — approx. 89 km",
+      "hotlines": [
+        {
+          "label": "24/7 Emergency",
+          "number": "(075) 532-2000"
+        }
+      ],
+      "patrolNote": "TPLEX patrol units are deployed along the full expressway length.",
+      "kmMarkerNote": "Kilometer markers are posted at regular intervals. Always note your KM reading before calling.",
+      "instructions": [
+        "Move to the right shoulder immediately. Turn on hazard lights.",
+        "Note your kilometer marker and direction (northbound or southbound).",
+        "Call TPLEX emergency. Provide your kilometer marker, vehicle plate, and number of passengers.",
+        "Call 911 if there are injuries.",
+        "Remain in your vehicle while waiting for patrol assistance."
+      ],
+      "doNot": [
+        "Do not stop in traffic lanes.",
+        "Do not walk on the expressway.",
+        "Do not attempt to flag down passing vehicles.",
+        "Do not make U-turns."
+      ]
+    }
+  ]
+}

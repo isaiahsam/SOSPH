@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/Isaiah/OneDrive/Documents/GitHub/SOSPH && npm install 2>&1 | tail -5)",
+      "Bash(cd /c/Users/Isaiah/OneDrive/Documents/GitHub/SOSPH && npm run build 2>&1)",
+      "Bash(cd /c/Users/Isaiah/OneDrive/Documents/GitHub/SOSPH && rm -rf .next && npm run build 2>&1)",
+      "Bash(taskkill //F //IM node.exe 2>&1; sleep 2 && cd /c/Users/Isaiah/OneDrive/Documents/GitHub/SOSPH && rm -rf .next && npm run build 2>&1)",
+      "Bash(npm run:*)",
+      "Bash(rm:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

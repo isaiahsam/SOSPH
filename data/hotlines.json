@@ -1,0 +1,219 @@
+{
+  "categories": [
+    {
+      "id": "national",
+      "name": "National Emergency",
+      "description": "Use these for any life-threatening emergency anywhere in the Philippines.",
+      "hotlines": [
+        {
+          "id": "911",
+          "name": "National Emergency Hotline",
+          "number": "911",
+          "altNumbers": [],
+          "description": "Fire, medical, police — all emergencies. Call this first.",
+          "available": "24/7",
+          "agency": "DILG / NDRRMC"
+        },
+        {
+          "id": "pnp",
+          "name": "Philippine National Police",
+          "number": "117",
+          "altNumbers": ["(02) 8722-0650"],
+          "description": "Police assistance, crime reporting, security threats.",
+          "available": "24/7",
+          "agency": "PNP"
+        },
+        {
+          "id": "bfp",
+          "name": "Bureau of Fire Protection",
+          "number": "160",
+          "altNumbers": ["(02) 8426-0219"],
+          "description": "Fire emergencies, fire investigation.",
+          "available": "24/7",
+          "agency": "BFP"
+        },
+        {
+          "id": "redcross",
+          "name": "Philippine Red Cross",
+          "number": "143",
+          "altNumbers": ["(02) 8527-8385"],
+          "description": "Disaster response, blood services, ambulance, rescue.",
+          "available": "24/7",
+          "agency": "Philippine Red Cross"
+        },
+        {
+          "id": "doh",
+          "name": "DOH Health Emergency",
+          "number": "1555",
+          "altNumbers": [],
+          "description": "Health emergencies, disease outbreaks, poison control.",
+          "available": "24/7",
+          "agency": "Department of Health"
+        }
+      ]
+    },
+    {
+      "id": "traffic",
+      "name": "Traffic & Road Assistance",
+      "description": "For road incidents, accidents, and traffic-related emergencies.",
+      "hotlines": [
+        {
+          "id": "mmda",
+          "name": "MMDA Emergency",
+          "number": "136",
+          "altNumbers": ["(02) 8882-4151"],
+          "description": "Metro Manila traffic emergencies, road clearing, flood.",
+          "available": "24/7",
+          "agency": "MMDA"
+        },
+        {
+          "id": "lto",
+          "name": "Land Transportation Office",
+          "number": "(02) 8922-9061",
+          "altNumbers": [],
+          "description": "Road accidents, vehicle concerns, license and registration issues.",
+          "available": "8AM–5PM weekdays",
+          "agency": "LTO"
+        },
+        {
+          "id": "tmc",
+          "name": "Traffic Management Center",
+          "number": "(02) 8421-2722",
+          "altNumbers": [],
+          "description": "Metro Manila traffic coordination center.",
+          "available": "24/7",
+          "agency": "MMDA TMC"
+        }
+      ]
+    },
+    {
+      "id": "expressway",
+      "name": "Expressway Operators",
+      "description": "Emergency and breakdown assistance on Philippine expressways.",
+      "hotlines": [
+        {
+          "id": "nlex",
+          "name": "NLEX Emergency",
+          "number": "1-800-10-6353-9",
+          "altNumbers": ["(044) 220-2116"],
+          "description": "North Luzon Expressway — breakdowns, accidents, road assistance.",
+          "available": "24/7",
+          "agency": "NLEX Corporation"
+        },
+        {
+          "id": "slex",
+          "name": "SLEX / Skyway Emergency",
+          "number": "(02) 8580-0000",
+          "altNumbers": ["(02) 8580-0020"],
+          "description": "South Luzon Expressway and Metro Manila Skyway.",
+          "available": "24/7",
+          "agency": "MPTC"
+        },
+        {
+          "id": "sctex",
+          "name": "SCTEX Emergency",
+          "number": "(045) 649-9555",
+          "altNumbers": ["1-800-10-6353-9"],
+          "description": "Subic-Clark-Tarlac Expressway emergency and breakdown.",
+          "available": "24/7",
+          "agency": "NLEX Corporation"
+        },
+        {
+          "id": "tplex",
+          "name": "TPLEX Emergency",
+          "number": "(075) 532-2000",
+          "altNumbers": [],
+          "description": "Tarlac-Pangasinan-La Union Expressway emergency assistance.",
+          "available": "24/7",
+          "agency": "TPLEX Operations"
+        },
+        {
+          "id": "cavitex",
+          "name": "CAVITEX Assistance",
+          "number": "(02) 8807-6000",
+          "altNumbers": [],
+          "description": "Cavite Expressway breakdown and road assistance.",
+          "available": "24/7",
+          "agency": "CAVITEX Operations"
+        }
+      ]
+    },
+    {
+      "id": "disaster",
+      "name": "Disaster Response",
+      "description": "For coordination during and after natural disasters and calamities.",
+      "hotlines": [
+        {
+          "id": "ndrrmc",
+          "name": "NDRRMC Operations Center",
+          "number": "(02) 8911-1406",
+          "altNumbers": ["(02) 8912-2665"],
+          "description": "National disaster coordination, flood, typhoon, earthquake response.",
+          "available": "24/7",
+          "agency": "Office of Civil Defense"
+        },
+        {
+          "id": "pagasa",
+          "name": "PAGASA Weather Hotline",
+          "number": "(02) 8284-0800",
+          "altNumbers": [],
+          "description": "Weather forecasts, storm warnings, typhoon advisories.",
+          "available": "24/7",
+          "agency": "PAGASA"
+        },
+        {
+          "id": "phivolcs",
+          "name": "PHIVOLCS",
+          "number": "(02) 8426-1468",
+          "altNumbers": [],
+          "description": "Earthquake and volcanic activity information.",
+          "available": "24/7",
+          "agency": "PHIVOLCS"
+        }
+      ]
+    },
+    {
+      "id": "medical",
+      "name": "Key Medical Facilities",
+      "description": "Major government hospitals with 24/7 emergency departments.",
+      "hotlines": [
+        {
+          "id": "pgh",
+          "name": "Philippine General Hospital",
+          "number": "(02) 8554-8400",
+          "altNumbers": [],
+          "description": "Level 1 trauma center, emergency medical care, NCR.",
+          "available": "24/7",
+          "agency": "PGH — UP Manila"
+        },
+        {
+          "id": "phc",
+          "name": "Philippine Heart Center",
+          "number": "(02) 8925-2401",
+          "altNumbers": [],
+          "description": "Cardiac emergencies, heart attack, chest pain.",
+          "available": "24/7",
+          "agency": "Philippine Heart Center"
+        },
+        {
+          "id": "pcmc",
+          "name": "Philippine Children's Medical Center",
+          "number": "(02) 8588-8080",
+          "altNumbers": [],
+          "description": "Pediatric emergencies, children under 18.",
+          "available": "24/7",
+          "agency": "PCMC"
+        },
+        {
+          "id": "lung",
+          "name": "Lung Center of the Philippines",
+          "number": "(02) 8924-6101",
+          "altNumbers": [],
+          "description": "Respiratory emergencies, lung conditions.",
+          "available": "24/7",
+          "agency": "Lung Center of the Philippines"
+        }
+      ]
+    }
+  ]
+}

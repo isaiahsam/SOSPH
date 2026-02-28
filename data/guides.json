@@ -1,0 +1,257 @@
+{
+  "guides": [
+    {
+      "id": "car-accident",
+      "title": "Car Accident",
+      "icon": "car",
+      "summary": "Stay calm. Prioritize safety. Document everything.",
+      "callFirst": ["911", "117"],
+      "steps": [
+        {
+          "step": 1,
+          "instruction": "Stop immediately and turn on hazard lights.",
+          "important": true
+        },
+        {
+          "step": 2,
+          "instruction": "Check yourself for injuries. Do not move if you feel severe pain."
+        },
+        {
+          "step": 3,
+          "instruction": "Check on other passengers. Do not move injured persons unless they are in immediate danger."
+        },
+        {
+          "step": 4,
+          "instruction": "Call 911 if there are injuries. Call 117 (PNP) to file a police report.",
+          "important": true
+        },
+        {
+          "step": 5,
+          "instruction": "If the vehicle is drivable and no one is injured, move it to the road shoulder."
+        },
+        {
+          "step": 6,
+          "instruction": "Document the scene: take photos of vehicle positions, damage, and license plates."
+        },
+        {
+          "step": 7,
+          "instruction": "Exchange name, contact number, license plate, and insurance information with the other driver."
+        },
+        {
+          "step": 8,
+          "instruction": "Collect contact information from any witnesses."
+        },
+        {
+          "step": 9,
+          "instruction": "Notify your insurance provider as soon as possible."
+        }
+      ],
+      "doNot": [
+        "Do not flee the scene.",
+        "Do not argue or confront the other driver.",
+        "Do not move severely injured persons.",
+        "Do not sign any documents at the scene."
+      ]
+    },
+    {
+      "id": "medical-emergency",
+      "title": "Medical Emergency",
+      "icon": "heart",
+      "summary": "Call for help first. Stay with the person. Keep them still.",
+      "callFirst": ["911", "143"],
+      "steps": [
+        {
+          "step": 1,
+          "instruction": "Call 911 immediately. Do not wait.",
+          "important": true
+        },
+        {
+          "step": 2,
+          "instruction": "Stay with the person. Do not leave them alone."
+        },
+        {
+          "step": 3,
+          "instruction": "Keep the person still and comfortable. Help them sit or lie down."
+        },
+        {
+          "step": 4,
+          "instruction": "Loosen tight clothing around the neck and chest."
+        },
+        {
+          "step": 5,
+          "instruction": "Do not give food, water, or medication unless instructed by emergency services."
+        },
+        {
+          "step": 6,
+          "instruction": "If the person is unconscious and not breathing, begin CPR if you are trained."
+        },
+        {
+          "step": 7,
+          "instruction": "Keep bystanders away — give the person space and air."
+        },
+        {
+          "step": 8,
+          "instruction": "When emergency responders arrive, describe the symptoms and how long they have been present."
+        }
+      ],
+      "doNot": [
+        "Do not move the person unless absolutely necessary.",
+        "Do not give food, water, or medicine on your own.",
+        "Do not leave the person alone while waiting for help.",
+        "Do not panic visibly in front of the person."
+      ]
+    },
+    {
+      "id": "fire",
+      "title": "Fire",
+      "icon": "flame",
+      "summary": "Get everyone out. Call for help. Do not re-enter.",
+      "callFirst": ["160", "911"],
+      "steps": [
+        {
+          "step": 1,
+          "instruction": "Alert everyone nearby. Shout 'Fire!' clearly.",
+          "important": true
+        },
+        {
+          "step": 2,
+          "instruction": "Activate the nearest fire alarm if one is available."
+        },
+        {
+          "step": 3,
+          "instruction": "Evacuate immediately using the nearest safe exit. Do not use elevators.",
+          "important": true
+        },
+        {
+          "step": 4,
+          "instruction": "Close doors behind you as you leave — this slows the spread of fire and smoke."
+        },
+        {
+          "step": 5,
+          "instruction": "Stay low if there is smoke. Crawl if necessary — smoke rises."
+        },
+        {
+          "step": 6,
+          "instruction": "Call 160 (Bureau of Fire Protection) or 911 once you are safely outside.",
+          "important": true
+        },
+        {
+          "step": 7,
+          "instruction": "Go to your designated assembly area and account for all people."
+        },
+        {
+          "step": 8,
+          "instruction": "Do not re-enter the building for any reason."
+        },
+        {
+          "step": 9,
+          "instruction": "Cooperate fully with firefighters when they arrive."
+        }
+      ],
+      "doNot": [
+        "Do not use elevators during a fire.",
+        "Do not re-enter the building for any reason.",
+        "Do not waste time gathering belongings.",
+        "Do not open a door if the handle feels hot."
+      ]
+    },
+    {
+      "id": "crime",
+      "title": "Crime / Robbery",
+      "icon": "shield",
+      "summary": "Your safety comes first. Do not resist. Report after.",
+      "callFirst": ["911", "117"],
+      "steps": [
+        {
+          "step": 1,
+          "instruction": "Prioritize your safety. Do not resist or fight back against armed perpetrators.",
+          "important": true
+        },
+        {
+          "step": 2,
+          "instruction": "Comply calmly. Most perpetrators want property, not confrontation."
+        },
+        {
+          "step": 3,
+          "instruction": "Once the incident is over, move to a safe location away from the scene."
+        },
+        {
+          "step": 4,
+          "instruction": "Call 911 or 117 (PNP) as soon as you are safe.",
+          "important": true
+        },
+        {
+          "step": 5,
+          "instruction": "Do not disturb the crime scene — do not touch or move anything."
+        },
+        {
+          "step": 6,
+          "instruction": "Write down everything you remember: descriptions, vehicle details, direction the suspects fled."
+        },
+        {
+          "step": 7,
+          "instruction": "Identify and collect contact information from any witnesses."
+        },
+        {
+          "step": 8,
+          "instruction": "File a police report as soon as possible. Request a copy for insurance and legal records."
+        }
+      ],
+      "doNot": [
+        "Do not resist armed perpetrators.",
+        "Do not pursue or follow the suspects.",
+        "Do not disturb the crime scene.",
+        "Do not post on social media before filing a report."
+      ]
+    },
+    {
+      "id": "flood",
+      "title": "Flood / Disaster Aftermath",
+      "icon": "water",
+      "summary": "Move to higher ground. Contact authorities. Wait for the all-clear.",
+      "callFirst": ["911", "136"],
+      "steps": [
+        {
+          "step": 1,
+          "instruction": "Move immediately to higher ground or an upper floor if flooding is active.",
+          "important": true
+        },
+        {
+          "step": 2,
+          "instruction": "Do not walk or drive through floodwaters. Even shallow moving water is dangerous."
+        },
+        {
+          "step": 3,
+          "instruction": "Turn off electricity at the main breaker if water is entering your home."
+        },
+        {
+          "step": 4,
+          "instruction": "Call 136 (MMDA) or 911 if you need rescue assistance.",
+          "important": true
+        },
+        {
+          "step": 5,
+          "instruction": "Contact your barangay hall or local DRRMO to register your location and status."
+        },
+        {
+          "step": 6,
+          "instruction": "Avoid drinking tap water until authorities confirm it is safe."
+        },
+        {
+          "step": 7,
+          "instruction": "Do not return home until authorities issue an official all-clear."
+        },
+        {
+          "step": 8,
+          "instruction": "Document all property damage with photos before cleaning up — for insurance claims."
+        }
+      ],
+      "doNot": [
+        "Do not walk or drive through floodwater.",
+        "Do not touch electrical equipment in flooded areas.",
+        "Do not return home without the official all-clear.",
+        "Do not drink tap water without confirmation it is safe."
+      ]
+    }
+  ]
+}
