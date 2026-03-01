@@ -86,7 +86,7 @@ export default function HomePage() {
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
 
         <div className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 py-32 md:py-40">
-          <div className="grid lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] gap-12 xl:gap-20 items-center">
+          <div className="grid lg:grid-cols-[1fr_460px] gap-8 xl:gap-12 items-center">
             {/* Text */}
             <div>
               <div className="reveal inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] text-white/50 text-xs font-medium px-3 py-1.5 rounded-full mb-10">
@@ -137,31 +137,267 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Floating number cards */}
-            <div className="hidden lg:flex flex-col gap-4">
-              {[
-                { number: "911", label: "Emergency Hotline", offset: "0px" },
-                {
-                  number: "143",
-                  label: "Philippine Red Cross",
-                  offset: "32px",
-                },
-                { number: "117", label: "PNP / Police", offset: "12px" },
-              ].map((card, i) => (
+            {/* Floating phone screens */}
+            <div className="hidden lg:flex flex-col items-center gap-6">
+              <div className="relative" style={{ width: "440px", height: "520px" }}>
+
+                {/* ── Screen 1: Splash (back, tilted left) ── */}
                 <div
-                  key={card.number}
-                  className="reveal bg-white/[0.04] border border-white/10 rounded-2xl px-6 py-5 hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
-                  style={{
-                    marginLeft: card.offset,
-                    transitionDelay: `${0.4 + i * 0.1}s`,
-                  }}
+                  className="reveal absolute inset-0 flex items-center justify-center"
+                  style={{ zIndex: 1, transitionDelay: "0.4s" }}
                 >
-                  <div className="font-mono font-bold text-2xl text-white mb-0.5">
-                    {card.number}
+                  <div style={{ transform: "rotate(-10deg) translate(-85px, -18px)" }}>
+                    <div
+                      className="rounded-[30px] overflow-hidden flex flex-col"
+                      style={{
+                        width: "210px",
+                        height: "410px",
+                        background: "#0D1117",
+                        backgroundImage: `
+                          radial-gradient(ellipse 90% 70% at 50% 42%, rgba(220,38,38,0.16) 0%, transparent 65%),
+                          repeating-radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 12%, rgba(255,255,255,0.03) 12.5%, transparent 13%),
+                          linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
+                        `,
+                        backgroundSize: "auto, auto, 50px 50px, 50px 50px",
+                        boxShadow: "0 40px 80px -12px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.07)",
+                      }}
+                    >
+                      {/* Top label */}
+                      <div className="flex flex-col items-center pt-8">
+                        <div className="text-[9px] font-bold text-white tracking-[0.22em]">SOSPH</div>
+                        <div className="text-[6.5px] text-white/20 tracking-[0.12em] uppercase mt-0.5">
+                          Critical Response System
+                        </div>
+                      </div>
+
+                      {/* Center — SOS rings + button */}
+                      <div className="flex-1 flex flex-col items-center justify-center gap-5">
+                        <div className="relative flex items-center justify-center">
+                          <div
+                            className="absolute rounded-full border border-red-600/12 animate-pulse"
+                            style={{ width: "136px", height: "136px" }}
+                          />
+                          <div
+                            className="absolute rounded-full border border-red-600/20"
+                            style={{ width: "104px", height: "104px" }}
+                          />
+                          <div
+                            className="absolute rounded-full border border-red-600/30"
+                            style={{ width: "76px", height: "76px" }}
+                          />
+                          <div
+                            className="relative rounded-full bg-red-600 flex items-center justify-center"
+                            style={{
+                              width: "54px",
+                              height: "54px",
+                              boxShadow: "0 0 32px rgba(220,38,38,0.6), 0 0 64px rgba(220,38,38,0.25)",
+                            }}
+                          >
+                            <span className="text-[11px] font-bold text-white tracking-[0.15em]">SOS</span>
+                          </div>
+                        </div>
+                        <div className="text-center px-6">
+                          <div className="text-[15px] font-bold text-white tracking-tight leading-tight">
+                            After-Emergency
+                          </div>
+                          <div className="text-[9px] text-white/30 mt-1">Response for Filipinos</div>
+                        </div>
+                      </div>
+
+                      {/* Bottom CTA */}
+                      <div className="px-6 pb-7 flex flex-col items-center gap-3">
+                        <div
+                          className="w-full bg-red-600 rounded-2xl py-3 flex items-center justify-center"
+                          style={{ boxShadow: "0 4px 16px rgba(220,38,38,0.38)" }}
+                        >
+                          <span className="text-[11px] font-bold text-white tracking-wide">
+                            Get Started
+                          </span>
+                        </div>
+                        <span className="text-[6.5px] text-white/15 tracking-[0.18em] uppercase">
+                          by Looma Labs
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500">{card.label}</div>
                 </div>
-              ))}
+
+                {/* ── Screen 2: Main app (front, slight right tilt) ── */}
+                <div
+                  className="reveal absolute inset-0 flex items-center justify-center"
+                  style={{ zIndex: 2, transitionDelay: "0.52s" }}
+                >
+                  <div style={{ transform: "rotate(6deg) translate(75px, 30px)" }}>
+                    <div
+                      className="rounded-[30px] overflow-hidden flex flex-col"
+                      style={{
+                        width: "210px",
+                        height: "410px",
+                        background: "#0A0E1A",
+                        boxShadow: "0 40px 80px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07)",
+                      }}
+                    >
+                      {/* Status bar */}
+                      <div className="relative flex items-center justify-between px-4 pt-3 pb-0 flex-shrink-0">
+                        <span className="text-[7.5px] font-medium text-white/35">9:41</span>
+                        <div
+                          className="absolute left-1/2 -translate-x-1/2 top-2.5 bg-black rounded-full"
+                          style={{ width: "62px", height: "17px" }}
+                        />
+                        <div className="flex items-center gap-1">
+                          <div className="flex items-end gap-[1.5px]" style={{ height: "9px" }}>
+                            {[3, 5, 7, 9].map((h) => (
+                              <div
+                                key={h}
+                                className="w-[2px] bg-white/35 rounded-[1px]"
+                                style={{ height: `${h}px` }}
+                              />
+                            ))}
+                          </div>
+                          <div className="relative ml-1" style={{ width: "13px", height: "7px" }}>
+                            <div className="absolute inset-0 border border-white/35 rounded-[2px]" />
+                            <div
+                              className="absolute top-[1px] left-[1px] bottom-[1px] bg-white/35 rounded-[1px]"
+                              style={{ width: "65%" }}
+                            />
+                            <div
+                              className="absolute bg-white/35 rounded-r-[1px]"
+                              style={{ right: "-2.5px", top: "2px", width: "2px", height: "3px" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* App body */}
+                      <div className="flex-1 flex flex-col px-4 pt-3.5 pb-5 gap-3">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-[6.5px] text-white/20 tracking-[0.1em] uppercase mb-0.5">
+                              After-Emergency
+                            </div>
+                            <div className="text-[14px] font-bold leading-none">
+                              <span className="text-white">SOS</span>
+                              <span className="text-red-500">PH</span>
+                            </div>
+                          </div>
+                          <div
+                            className="rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center"
+                            style={{ width: "26px", height: "26px" }}
+                          >
+                            <svg
+                              className="text-white/25"
+                              style={{ width: "12px", height: "12px" }}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+
+                        {/* Location */}
+                        <div className="bg-blue-950/50 border border-blue-500/20 rounded-2xl p-3">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <div
+                              className="bg-blue-400 rounded-full animate-pulse flex-shrink-0"
+                              style={{ width: "6px", height: "6px" }}
+                              aria-hidden="true"
+                            />
+                            <span className="text-[6.5px] text-blue-400 font-medium tracking-[0.08em] uppercase">
+                              Location Detected
+                            </span>
+                          </div>
+                          <div className="text-white/75 text-[9px] font-mono">
+                            14.5995° N, 120.9842° E
+                          </div>
+                          <div className="text-white/20 text-[7px] mt-0.5">Tap to copy and share</div>
+                        </div>
+
+                        {/* Quick Dial */}
+                        <div>
+                          <div className="text-[6.5px] text-white/20 uppercase tracking-[0.1em] mb-2">
+                            Quick Dial
+                          </div>
+                          {[
+                            { num: "911", label: "Emergency Hotline" },
+                            { num: "143", label: "Philippine Red Cross" },
+                            { num: "117", label: "PNP Police" },
+                          ].map(({ num, label }) => (
+                            <div
+                              key={num}
+                              className="flex items-center justify-between bg-white/[0.035] border border-white/[0.07] rounded-xl px-3 py-2 mb-1.5"
+                            >
+                              <div>
+                                <div className="text-[11px] font-bold font-mono text-white leading-none">
+                                  {num}
+                                </div>
+                                <div className="text-[6.5px] text-white/25 mt-0.5">{label}</div>
+                              </div>
+                              <div
+                                className="bg-red-600 rounded-full flex items-center justify-center flex-shrink-0"
+                                style={{ width: "21px", height: "21px" }}
+                              >
+                                <svg
+                                  className="text-white"
+                                  style={{ width: "10px", height: "10px" }}
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                </svg>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* SOS button */}
+                        <div className="flex-1 flex items-end justify-center">
+                          <div className="relative">
+                            <div
+                              className="absolute inset-0 rounded-full bg-red-600/20 scale-[1.35] animate-pulse"
+                              aria-hidden="true"
+                            />
+                            <div
+                              className="relative bg-red-600 rounded-full flex items-center justify-center"
+                              style={{
+                                width: "52px",
+                                height: "52px",
+                                boxShadow: "0 0 24px rgba(220,38,38,0.5)",
+                              }}
+                            >
+                              <span className="text-[10px] font-bold text-white tracking-[0.15em]">
+                                SOS
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coming Soon badge */}
+              <div
+                className="reveal inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] text-white/50 text-xs font-medium px-3 py-1.5 rounded-full"
+                style={{ transitionDelay: "0.65s" }}
+              >
+                <span
+                  className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"
+                  aria-hidden="true"
+                />
+                Mobile app — coming soon
+              </div>
             </div>
           </div>
         </div>
