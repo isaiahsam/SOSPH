@@ -1,23 +1,152 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import LocationHelper from "@/components/LocationHelper";
-import RevealObserver from "@/components/RevealObserver";
+"use client";
 
-export const metadata: Metadata = {
-  title: "About Us",
-  description:
-    "SOSPH is an after-emergency response platform built for Filipinos. Learn what it does, why it exists, and how it helps.",
-};
+import Link from "next/link";
+import { useEffect, useRef, useCallback } from "react";
+import LocationHelper from "@/components/LocationHelper";
+
+function parallaxSection(
+  section: HTMLElement | null,
+  bgEl: HTMLElement | null,
+  speed: number
+) {
+  if (!section || !bgEl) return;
+  const rect = section.getBoundingClientRect();
+  const viewMid = window.innerHeight / 2;
+  const sectionMid = rect.top + rect.height / 2;
+  bgEl.style.transform = `translateY(${(sectionMid - viewMid) * speed}px)`;
+}
+
+const MARQUEE_ITEMS = [
+  "BUILT FOR FILIPINOS",
+  "AFTER THE EMERGENCY",
+  "LOOMA LABS",
+  "CALM",
+  "DIRECT",
+  "NO ACCOUNT NEEDED",
+  "CALL 911",
+  "RESPONSE GUIDE",
+  "FOUR TOOLS",
+];
 
 export default function AboutPage() {
+  /* ── Refs ── */
+  const heroRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  const notSectionRef = useRef<HTMLElement>(null);
+  const notGridRef = useRef<HTMLDivElement>(null);
+
+  const ctaSectionRef = useRef<HTMLElement>(null);
+  const ctaGlowRef = useRef<HTMLDivElement>(null);
+
+  const velTextsRef = useRef<Element[]>([]);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+
+  const handleHeroMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!spotlightRef.current || !heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlightRef.current.style.background = `radial-gradient(ellipse 50% 50% at ${x}% ${y}%, rgba(37,99,235,0.06) 0%, transparent 65%)`;
+    },
+    []
+  );
+
+  useEffect(() => {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    document
+      .querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale")
+      .forEach((el) => revealObserver.observe(el));
+
+    velTextsRef.current = Array.from(document.querySelectorAll(".vel-text"));
+
+    let rafId: number;
+    let smoothY = window.scrollY;
+    let rawY = window.scrollY;
+    let prevRawY = window.scrollY;
+    let velocity = 0;
+
+    const onScroll = () => {
+      rawY = window.scrollY;
+    };
+
+    const frame = () => {
+      smoothY += (rawY - smoothY) * 0.09;
+      const rawVel = rawY - prevRawY;
+      velocity += (rawVel - velocity) * 0.25;
+      prevRawY = rawY;
+
+      if (progressRef.current) {
+        const max =
+          document.documentElement.scrollHeight - window.innerHeight;
+        progressRef.current.style.width =
+          max > 0 ? `${(smoothY / max) * 100}%` : "0%";
+      }
+
+      /* Hero parallax */
+      const heroH = heroRef.current?.offsetHeight ?? 600;
+      if (smoothY < heroH * 1.5) {
+        if (gridRef.current)
+          gridRef.current.style.transform = `translateY(${smoothY * 0.22}px)`;
+        if (glowRef.current)
+          glowRef.current.style.transform = `translateY(${smoothY * 0.42}px)`;
+      }
+
+      /* What SOSPH is NOT section */
+      parallaxSection(notSectionRef.current, notGridRef.current, 0.14);
+
+      /* Mobile CTA */
+      parallaxSection(ctaSectionRef.current, ctaGlowRef.current, 0.24);
+
+      /* Velocity text skew */
+      const skew = velocity * -0.055;
+      velTextsRef.current.forEach((el) => {
+        (el as HTMLElement).style.transform = `skewX(${skew}deg)`;
+      });
+
+      /* Marquee speed */
+      const absVel = Math.abs(velocity);
+      const dur = Math.max(10, 26 - absVel * 0.6);
+      if (marqueeRef.current)
+        marqueeRef.current.style.animationDuration = `${dur}s`;
+
+      rafId = requestAnimationFrame(frame);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    rafId = requestAnimationFrame(frame);
+
+    return () => {
+      revealObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="overflow-x-hidden">
-      <RevealObserver />
+      <div ref={progressRef} className="scroll-progress" aria-hidden="true" />
 
       {/* ── Header ── */}
-      <section className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden">
+      <section
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={gridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -27,11 +156,16 @@ export default function AboutPage() {
           }}
         />
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={glowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             background:
               "radial-gradient(ellipse 50% 60% at 80% 30%, rgba(37,99,235,0.07) 0%, transparent 70%)",
           }}
+        />
+        <div
+          ref={spotlightRef}
+          className="absolute inset-0 pointer-events-none"
         />
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
 
@@ -39,14 +173,12 @@ export default function AboutPage() {
           <div>
             <p className="reveal label-caps text-gray-600 mb-3">About Us</p>
             <h1
-              className="reveal text-4xl md:text-6xl font-bold text-white leading-tight mb-6"
+              className="reveal vel-text text-4xl md:text-6xl font-bold text-white leading-tight mb-6"
               style={{ transitionDelay: "0.1s" }}
             >
               Built for Filipinos.
               <br />
-              <span className="text-white/40">
-                For after the emergency.
-              </span>
+              <span className="text-white/40">For after the emergency.</span>
             </h1>
             <p
               className="reveal text-lg text-white/45 max-w-lg leading-relaxed"
@@ -107,7 +239,7 @@ export default function AboutPage() {
               Why it exists
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               The first few minutes
@@ -139,6 +271,19 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* ── Marquee (between Why it exists and What it provides) ── */}
+      <div className="relative overflow-hidden py-4 bg-gray-50 border-y border-gray-100">
+        <div
+          ref={marqueeRef}
+          className="flex gap-10 whitespace-nowrap text-gray-300 text-xs font-medium tracking-widest uppercase"
+          style={{ animation: "marquee 30s linear infinite" }}
+        >
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+            <span key={i}>{item}</span>
+          ))}
+        </div>
+      </div>
+
       {/* ── What SOSPH Provides ── */}
       <section className="bg-gray-50 py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="mb-14">
@@ -147,7 +292,7 @@ export default function AboutPage() {
           </p>
           <div className="flex items-end justify-between gap-4">
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Four tools. All free.
@@ -183,19 +328,19 @@ export default function AboutPage() {
               num: "01",
               title: "Emergency Hotlines",
               desc: "A complete directory of Philippine emergency numbers — national, medical, traffic, expressway, and disaster response.",
-              href: "/hotlines",
+              href: "/features/hotlines",
             },
             {
               num: "02",
               title: "Response Guides",
               desc: "Numbered steps for car accidents, medical emergencies, fire, crime, and flood aftermath.",
-              href: "/guides",
+              href: "/features/guides",
             },
             {
               num: "03",
               title: "Expressway Guidance",
               desc: "Dedicated procedures and direct hotlines for NLEX, SLEX, Skyway, SCTEX, and TPLEX.",
-              href: "/expressways",
+              href: "/features/expressways",
             },
             {
               num: "04",
@@ -242,12 +387,28 @@ export default function AboutPage() {
       </section>
 
       {/* ── What SOSPH is NOT ── */}
-      <section className="bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
+      <section
+        ref={notSectionRef}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
+        <div
+          ref={notGridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+        <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
+
+        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
           <div>
             <p className="reveal label-caps text-gray-600 mb-4">Clarity</p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-white leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-white leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               What SOSPH
@@ -295,7 +456,7 @@ export default function AboutPage() {
           <div>
             <p className="reveal label-caps text-gray-400 mb-4">Try it now</p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-4"
               style={{ transitionDelay: "0.1s" }}
             >
               Location Helper
@@ -316,9 +477,13 @@ export default function AboutPage() {
       </section>
 
       {/* ── Mobile CTA ── */}
-      <section className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden">
+      <section
+        ref={ctaSectionRef}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={ctaGlowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             background:
               "radial-gradient(ellipse 50% 60% at 80% 50%, rgba(37,99,235,0.08) 0%, transparent 70%)",
@@ -334,7 +499,7 @@ export default function AboutPage() {
               Coming soon on Mobile
             </div>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-white leading-tight mb-4"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-white leading-tight mb-4"
               style={{ transitionDelay: "0.1s" }}
             >
               SOSPH Mobile App

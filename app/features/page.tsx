@@ -1,30 +1,165 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useCallback } from "react";
 import hotlinesData from "@/data/hotlines.json";
 import guidesData from "@/data/guides.json";
 import expresswaysData from "@/data/expressways.json";
 import LocationHelper from "@/components/LocationHelper";
-import RevealObserver from "@/components/RevealObserver";
 
-export const metadata: Metadata = {
-  title: "Features — What SOSPH Provides",
-  description:
-    "Emergency hotlines, step-by-step response guides, expressway procedures, and GPS location sharing. All available now, no account required.",
-};
+function parallaxSection(
+  section: HTMLElement | null,
+  bgEl: HTMLElement | null,
+  speed: number
+) {
+  if (!section || !bgEl) return;
+  const rect = section.getBoundingClientRect();
+  const viewMid = window.innerHeight / 2;
+  const sectionMid = rect.top + rect.height / 2;
+  bgEl.style.transform = `translateY(${(sectionMid - viewMid) * speed}px)`;
+}
+
+const MARQUEE_ITEMS = [
+  "HOTLINES",
+  "GUIDES",
+  "EXPRESSWAYS",
+  "GPS LOCATION",
+  "EMERGENCY RESPONSE",
+  "911",
+  "CALL FIRST",
+  "AFTER THE EMERGENCY",
+  "NO ACCOUNT NEEDED",
+];
 
 export default function FeaturesPage() {
   const nationalHotlines = hotlinesData.categories[0].hotlines;
   const guides = guidesData.guides;
   const expressways = expresswaysData.expressways;
 
+  /* ── Refs ── */
+  const heroRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  const guidesSectionRef = useRef<HTMLElement>(null);
+  const guidesGridRef = useRef<HTMLDivElement>(null);
+  const guidesGlowRef = useRef<HTMLDivElement>(null);
+
+  const disclaimerSectionRef = useRef<HTMLElement>(null);
+  const disclaimerGridRef = useRef<HTMLDivElement>(null);
+
+  const velTextsRef = useRef<Element[]>([]);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+
+  const handleHeroMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!spotlightRef.current || !heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlightRef.current.style.background = `radial-gradient(ellipse 50% 50% at ${x}% ${y}%, rgba(220,38,38,0.07) 0%, transparent 65%)`;
+    },
+    []
+  );
+
+  useEffect(() => {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    document
+      .querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale")
+      .forEach((el) => revealObserver.observe(el));
+
+    velTextsRef.current = Array.from(document.querySelectorAll(".vel-text"));
+
+    let rafId: number;
+    let smoothY = window.scrollY;
+    let rawY = window.scrollY;
+    let prevRawY = window.scrollY;
+    let velocity = 0;
+
+    const onScroll = () => {
+      rawY = window.scrollY;
+    };
+
+    const frame = () => {
+      smoothY += (rawY - smoothY) * 0.09;
+      const rawVel = rawY - prevRawY;
+      velocity += (rawVel - velocity) * 0.25;
+      prevRawY = rawY;
+
+      if (progressRef.current) {
+        const max =
+          document.documentElement.scrollHeight - window.innerHeight;
+        progressRef.current.style.width =
+          max > 0 ? `${(smoothY / max) * 100}%` : "0%";
+      }
+
+      /* Hero parallax */
+      const heroH = heroRef.current?.offsetHeight ?? 600;
+      if (smoothY < heroH * 1.5) {
+        if (gridRef.current)
+          gridRef.current.style.transform = `translateY(${smoothY * 0.22}px)`;
+        if (glowRef.current)
+          glowRef.current.style.transform = `translateY(${smoothY * 0.42}px)`;
+      }
+
+      /* Guides section parallax */
+      parallaxSection(guidesSectionRef.current, guidesGridRef.current, 0.14);
+      parallaxSection(guidesSectionRef.current, guidesGlowRef.current, 0.26);
+
+      /* Disclaimer parallax */
+      parallaxSection(
+        disclaimerSectionRef.current,
+        disclaimerGridRef.current,
+        0.12
+      );
+
+      /* Velocity text skew */
+      const skew = velocity * -0.055;
+      velTextsRef.current.forEach((el) => {
+        (el as HTMLElement).style.transform = `skewX(${skew}deg)`;
+      });
+
+      /* Marquee speed */
+      const absVel = Math.abs(velocity);
+      const dur = Math.max(10, 26 - absVel * 0.6);
+      if (marqueeRef.current)
+        marqueeRef.current.style.animationDuration = `${dur}s`;
+
+      rafId = requestAnimationFrame(frame);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    rafId = requestAnimationFrame(frame);
+
+    return () => {
+      revealObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="overflow-x-hidden">
-      <RevealObserver />
+      <div ref={progressRef} className="scroll-progress" aria-hidden="true" />
 
       {/* ── Header ── */}
-      <section className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden">
+      <section
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={gridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -33,12 +168,24 @@ export default function FeaturesPage() {
             backgroundSize: "60px 60px",
           }}
         />
+        <div
+          ref={glowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 50% at 15% 60%, rgba(220,38,38,0.13) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          ref={spotlightRef}
+          className="absolute inset-0 pointer-events-none"
+        />
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
 
         <div className="relative">
           <p className="reveal label-caps text-gray-600 mb-3">Platform</p>
           <h1
-            className="reveal text-4xl md:text-6xl font-bold text-white leading-tight mb-6"
+            className="reveal vel-text text-4xl md:text-6xl font-bold text-white leading-tight mb-6"
             style={{ transitionDelay: "0.1s" }}
           >
             What SOSPH
@@ -63,7 +210,7 @@ export default function FeaturesPage() {
               01
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Emergency Hotlines
@@ -77,7 +224,7 @@ export default function FeaturesPage() {
               category. Click any number to call on mobile.
             </p>
             <Link
-              href="/hotlines"
+              href="/features/hotlines"
               className="reveal group inline-flex items-center gap-2 text-sm font-semibold text-gray-900 border border-gray-200 hover:border-gray-400 hover:shadow-sm px-5 py-3 rounded-lg transition-all duration-200"
               style={{ transitionDelay: "0.3s" }}
             >
@@ -134,7 +281,7 @@ export default function FeaturesPage() {
             <p className="text-xs text-gray-400 pt-2">
               Showing national emergency numbers.{" "}
               <Link
-                href="/hotlines"
+                href="/features/hotlines"
                 className="text-blue-500 hover:text-blue-600"
               >
                 View all categories →
@@ -145,14 +292,37 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── 02 Response Guides ── */}
-      <section className="bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
+      <section
+        ref={guidesSectionRef}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
+        <div
+          ref={guidesGridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+        <div
+          ref={guidesGlowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            background:
+              "radial-gradient(ellipse 60% 50% at 85% 40%, rgba(220,38,38,0.08) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
           <div>
             <p className="reveal font-mono text-xs text-gray-600 mb-4 tracking-widest">
               02
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-white mb-4 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-white mb-4 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Response Guides
@@ -166,7 +336,7 @@ export default function FeaturesPage() {
               while panicking.
             </p>
             <Link
-              href="/guides"
+              href="/features/guides"
               className="reveal group inline-flex items-center gap-2 text-sm font-semibold text-white border border-gray-700 hover:border-gray-500 px-5 py-3 rounded-lg transition-all duration-200"
               style={{ transitionDelay: "0.3s" }}
             >
@@ -192,7 +362,7 @@ export default function FeaturesPage() {
             {guides.map((guide, i) => (
               <Link
                 key={guide.id}
-                href={`/guides/${guide.id}`}
+                href={`/features/guides/${guide.id}`}
                 className="reveal group flex items-center justify-between p-4 bg-white/[0.03] border border-white/10 rounded-xl hover:bg-white/[0.07] hover:border-white/20 transition-all duration-300"
                 style={{ transitionDelay: `${i * 0.06}s` }}
               >
@@ -232,6 +402,19 @@ export default function FeaturesPage() {
         </div>
       </section>
 
+      {/* ── Marquee ticker (between guides and expressways) ── */}
+      <div className="relative overflow-hidden py-4 bg-[#0D1117] border-y border-white/5">
+        <div
+          ref={marqueeRef}
+          className="flex gap-10 whitespace-nowrap text-white/15 text-xs font-medium tracking-widest uppercase"
+          style={{ animation: "marquee 26s linear infinite" }}
+        >
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+            <span key={i}>{item}</span>
+          ))}
+        </div>
+      </div>
+
       {/* ── 03 Expressway Guidance ── */}
       <section className="bg-gray-50 py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-start">
@@ -240,7 +423,7 @@ export default function FeaturesPage() {
               03
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Expressway Guidance
@@ -264,7 +447,7 @@ export default function FeaturesPage() {
               </p>
             </div>
             <Link
-              href="/expressways"
+              href="/features/expressways"
               className="reveal group inline-flex items-center gap-2 text-sm font-semibold text-gray-900 border border-gray-200 hover:border-gray-400 hover:shadow-sm px-5 py-3 rounded-lg transition-all duration-200"
             >
               View expressway guide
@@ -329,7 +512,7 @@ export default function FeaturesPage() {
               04
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Location Helper
@@ -356,8 +539,22 @@ export default function FeaturesPage() {
       </section>
 
       {/* ── Disclaimer ── */}
-      <section className="bg-[#0D1117] py-12 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <p className="text-sm text-gray-600 leading-relaxed max-w-2xl">
+      <section
+        ref={disclaimerSectionRef}
+        className="relative bg-[#0D1117] py-12 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
+        <div
+          ref={disclaimerGridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+        <p className="relative text-sm text-gray-600 leading-relaxed max-w-2xl">
           All content on this platform is for reference and guidance only.
           SOSPH does not dispatch emergency services. In any life-threatening
           situation, call{" "}

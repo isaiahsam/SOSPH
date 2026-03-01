@@ -46,6 +46,33 @@
 }
 
 /* ── Keyframes ── */
+
+/* Marquee — horizontal ticker */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Word reveal — each line clips upward */
+.reveal-word {
+  display: block;
+  transform: translateY(108%);
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-word.visible {
+  transform: translateY(0);
+}
+
+/* Velocity text — JS applies skewX via inline style */
+.vel-text {
+  will-change: transform;
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-12px); }
@@ -60,7 +87,7 @@
   0%   { transform: translateY(-4px); opacity: 0; }
   5%   { opacity: 1; }
   95%  { opacity: 1; }
-  100% { transform: translateY(414px); opacity: 0; }
+  100% { transform: translateY(484px); opacity: 0; }
 }
 
 @keyframes glow-ring {
@@ -180,9 +207,14 @@
   .reveal,
   .reveal-left,
   .reveal-right,
-  .reveal-scale {
+  .reveal-scale,
+  .reveal-word {
     opacity: 1;
     transform: none;
+    transition: none;
+  }
+
+  .vel-text {
     transition: none;
   }
 
@@ -195,7 +227,8 @@
   .reveal,
   .reveal-left,
   .reveal-right,
-  .reveal-scale {
+  .reveal-scale,
+  .reveal-word {
     opacity: 1;
     transform: none;
   }

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useCallback } from "react";
-import type { ReactNode } from "react";
 import guidesData from "@/data/guides.json";
 
 function parallaxSection(
@@ -23,117 +22,14 @@ const MARQUEE_ITEMS = [
   "FIRE",
   "CRIME",
   "FLOOD",
-  "CALL 911",
+  "FIRST RESPONSE",
+  "CALL FIRST",
   "STAY CALM",
-  "ENSURE SAFETY",
-  "SHARE LOCATION",
-  "FOLLOW INSTRUCTIONS",
+  "STEP BY STEP",
+  "EMERGENCY GUIDE",
 ];
 
-const emergencyIcons: Record<string, ReactNode> = {
-  car: (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 0M13 16H9m4 0h5l1-5H6l2-5h9l1 5"
-      />
-    </svg>
-  ),
-  heart: (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-      />
-    </svg>
-  ),
-  flame: (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"
-      />
-    </svg>
-  ),
-  shield: (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-      />
-    </svg>
-  ),
-  water: (
-    <svg
-      className="w-6 h-6"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-      />
-    </svg>
-  ),
-};
-
-const iconColors: Record<string, string> = {
-  car: "bg-orange-50 text-orange-600 group-hover:bg-red-50 group-hover:text-red-600",
-  heart: "bg-red-50 text-red-600 group-hover:text-red-700",
-  flame: "bg-red-50 text-red-700 group-hover:text-red-800",
-  shield: "bg-blue-50 text-blue-600 group-hover:bg-red-50 group-hover:text-red-600",
-  water: "bg-blue-50 text-blue-700 group-hover:bg-red-50 group-hover:text-red-600",
-};
-
-export default function EmergencyTypesPage() {
+export default function GuidesPage() {
   const heroRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
@@ -141,8 +37,6 @@ export default function EmergencyTypesPage() {
   const progressRef = useRef<HTMLDivElement>(null);
   const velTextsRef = useRef<Element[]>([]);
   const marqueeRef = useRef<HTMLDivElement>(null);
-  const tipSectionRef = useRef<HTMLElement>(null);
-  const tipGridRef = useRef<HTMLDivElement>(null);
 
   const handleHeroMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
@@ -230,8 +124,6 @@ export default function EmergencyTypesPage() {
           glowRef.current.style.transform = `translateY(${smoothY * 0.42}px)`;
       }
 
-      parallaxSection(tipSectionRef.current, tipGridRef.current, 0.14);
-
       const skew = velocity * -0.055;
       velTextsRef.current.forEach((el) => {
         (el as HTMLElement).style.transform = `skewX(${skew}deg)`;
@@ -293,10 +185,10 @@ export default function EmergencyTypesPage() {
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
 
         <div className="relative">
-          <p className="reveal label-caps text-gray-600 mb-3">Emergency Types</p>
+          <p className="reveal label-caps text-gray-600 mb-3">Features</p>
           <div className="overflow-hidden mb-1">
             <h1 className="vel-text reveal-word text-4xl md:text-6xl font-bold text-white leading-tight">
-              Know your
+              Emergency
             </h1>
           </div>
           <div className="overflow-hidden mb-6">
@@ -304,15 +196,15 @@ export default function EmergencyTypesPage() {
               className="vel-text reveal-word text-4xl md:text-6xl font-bold text-white leading-tight"
               style={{ transitionDelay: "0.08s" }}
             >
-              emergency.
+              Guides.
             </h1>
           </div>
           <p
             className="reveal text-lg text-white/45 max-w-lg leading-relaxed"
             style={{ transitionDelay: "0.2s" }}
           >
-            Select the type of emergency you are dealing with to get
-            step-by-step response guidance.
+            Clear, step-by-step instructions for the most common emergency
+            situations. Designed for calm, fast reading under stress.
           </p>
         </div>
       </section>
@@ -330,87 +222,54 @@ export default function EmergencyTypesPage() {
         </div>
       </div>
 
-      {/* ── Emergency type grid ── */}
+      {/* ── Guide cards ── */}
       <section className="bg-white py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
           {guidesData.guides.map((guide, i) => (
             <Link
               key={guide.id}
               href={`/features/guides/${guide.id}`}
-              className="reveal-scale group flex gap-4 p-5 bg-white border border-gray-200 rounded-xl hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg transition-all duration-300"
+              className="reveal-scale flex flex-col bg-white border border-gray-200 rounded-xl p-5 hover:-translate-y-2 hover:shadow-lg hover:border-gray-300 transition-all duration-300"
               style={{ transitionDelay: `${i * 0.08}s` }}
             >
-              <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors duration-300 ${
-                  iconColors[guide.icon] ?? "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {emergencyIcons[guide.icon]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-gray-900 mb-1">
-                  {guide.title}
-                </h2>
-                <p className="text-sm text-gray-500 leading-snug mb-3">
-                  {guide.summary}
-                </p>
-                <div className="flex items-center gap-3">
+              <h2 className="font-semibold text-gray-900 text-lg mb-1">
+                {guide.title}
+              </h2>
+              <p className="text-sm text-gray-500 leading-relaxed mb-4 flex-1">
+                {guide.summary}
+              </p>
+
+              <div className="border-t border-gray-100 pt-4 mt-auto">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <span className="font-medium">{guide.steps.length} steps</span>
+                    <span className="text-gray-300">·</span>
+                    <span>
+                      Call:{" "}
+                      <span className="text-red-600 font-semibold">
+                        {guide.callFirst[0]}
+                      </span>
+                    </span>
+                  </div>
                   <span className="text-xs text-blue-600 font-medium">
-                    {guide.steps.length} steps
-                  </span>
-                  <span className="text-gray-300">·</span>
-                  <span className="text-xs text-gray-500">
-                    Call: {guide.callFirst.join(", ")}
+                    View →
                   </span>
                 </div>
               </div>
             </Link>
           ))}
         </div>
-      </section>
 
-      {/* ── Applies to Every Emergency ── */}
-      <section
-        ref={tipSectionRef}
-        className="relative bg-[#0D1117] py-20 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
-      >
-        <div
-          ref={tipGridRef}
-          className="absolute inset-0 pointer-events-none will-change-transform"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
-            `,
-            backgroundSize: "60px 60px",
-          }}
-        />
-        <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
-
-        <div className="relative">
-          <h2 className="reveal vel-text text-2xl font-bold text-white mb-8">
-            Applies to Every Emergency
-          </h2>
-          <ul className="space-y-3">
-            {[
-              "Stay calm. Your judgment is your most valuable asset.",
-              "Ensure your own safety before helping others.",
-              "Call 911 first if there is any risk to life.",
-              "Share your location clearly — include landmarks or kilometer markers.",
-              "Follow instructions from emergency responders exactly.",
-            ].map((tip, i) => (
-              <li
-                key={i}
-                className="reveal flex items-start gap-4 p-5 bg-white/[0.03] border border-white/10 rounded-xl"
-                style={{ transitionDelay: `${i * 0.07}s` }}
-              >
-                <span className="text-gray-600 font-mono text-xs mt-0.5 flex-shrink-0">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="text-sm text-gray-300 leading-relaxed">{tip}</p>
-              </li>
-            ))}
-          </ul>
+        {/* Offline prep */}
+        <div className="reveal bg-gray-50 border border-gray-200 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-800 mb-1 text-sm">
+            Offline Preparation
+          </h3>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            You can print any guide page for offline use. Open the guide, then
+            use your browser&apos;s print function (Ctrl+P or ⌘+P). Each guide
+            is formatted to print cleanly on a single page.
+          </p>
         </div>
       </section>
     </div>

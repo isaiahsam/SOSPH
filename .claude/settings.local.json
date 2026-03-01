@@ -7,7 +7,8 @@
       "Bash(taskkill //F //IM node.exe 2>&1; sleep 2 && cd /c/Users/Isaiah/OneDrive/Documents/GitHub/SOSPH && rm -rf .next && npm run build 2>&1)",
       "Bash(npm run:*)",
       "Bash(rm:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(taskkill:*)"
     ]
   }
 }

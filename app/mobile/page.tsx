@@ -1,12 +1,19 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import RevealObserver from "@/components/RevealObserver";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Soon on Mobile",
-  description:
-    "The SOSPH mobile app is coming. Offline access, one-tap calling, GPS location sharing — built for the moment of an emergency.",
-};
+import Link from "next/link";
+import { useEffect, useRef, useCallback } from "react";
+
+function parallaxSection(
+  section: HTMLElement | null,
+  bgEl: HTMLElement | null,
+  speed: number
+) {
+  if (!section || !bgEl) return;
+  const rect = section.getBoundingClientRect();
+  const viewMid = window.innerHeight / 2;
+  const sectionMid = rect.top + rect.height / 2;
+  bgEl.style.transform = `translateY(${(sectionMid - viewMid) * speed}px)`;
+}
 
 const plannedFeatures = [
   {
@@ -48,14 +55,115 @@ const plannedFeatures = [
 ];
 
 export default function MobilePage() {
+  /* ── Refs ── */
+  const heroRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  const featuresSectionRef = useRef<HTMLElement>(null);
+  const featuresGridRef = useRef<HTMLDivElement>(null);
+
+  const velTextsRef = useRef<Element[]>([]);
+
+  const handleHeroMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!spotlightRef.current || !heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlightRef.current.style.background = `radial-gradient(ellipse 50% 50% at ${x}% ${y}%, rgba(37,99,235,0.07) 0%, transparent 65%)`;
+    },
+    []
+  );
+
+  useEffect(() => {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+    );
+    document
+      .querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale")
+      .forEach((el) => revealObserver.observe(el));
+
+    velTextsRef.current = Array.from(document.querySelectorAll(".vel-text"));
+
+    let rafId: number;
+    let smoothY = window.scrollY;
+    let rawY = window.scrollY;
+    let prevRawY = window.scrollY;
+    let velocity = 0;
+
+    const onScroll = () => {
+      rawY = window.scrollY;
+    };
+
+    const frame = () => {
+      smoothY += (rawY - smoothY) * 0.09;
+      const rawVel = rawY - prevRawY;
+      velocity += (rawVel - velocity) * 0.25;
+      prevRawY = rawY;
+
+      if (progressRef.current) {
+        const max =
+          document.documentElement.scrollHeight - window.innerHeight;
+        progressRef.current.style.width =
+          max > 0 ? `${(smoothY / max) * 100}%` : "0%";
+      }
+
+      /* Hero parallax */
+      const heroH = heroRef.current?.offsetHeight ?? 600;
+      if (smoothY < heroH * 1.5) {
+        if (gridRef.current)
+          gridRef.current.style.transform = `translateY(${smoothY * 0.22}px)`;
+        if (glowRef.current)
+          glowRef.current.style.transform = `translateY(${smoothY * 0.42}px)`;
+      }
+
+      /* Planned features section parallax */
+      parallaxSection(
+        featuresSectionRef.current,
+        featuresGridRef.current,
+        0.14
+      );
+
+      /* Velocity text skew */
+      const skew = velocity * -0.055;
+      velTextsRef.current.forEach((el) => {
+        (el as HTMLElement).style.transform = `skewX(${skew}deg)`;
+      });
+
+      rafId = requestAnimationFrame(frame);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    rafId = requestAnimationFrame(frame);
+
+    return () => {
+      revealObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="overflow-x-hidden">
-      <RevealObserver />
+      <div ref={progressRef} className="scroll-progress" aria-hidden="true" />
 
       {/* ── Header ── */}
-      <section className="relative min-h-[70vh] bg-[#0D1117] flex items-center py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden">
+      <section
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        className="relative min-h-[70vh] bg-[#0D1117] flex items-center py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={gridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -65,11 +173,16 @@ export default function MobilePage() {
           }}
         />
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={glowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             background:
               "radial-gradient(ellipse 60% 50% at 85% 50%, rgba(37,99,235,0.1) 0%, transparent 70%)",
           }}
+        />
+        <div
+          ref={spotlightRef}
+          className="absolute inset-0 pointer-events-none"
         />
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-blue-500 via-blue-700/60 to-transparent" />
 
@@ -84,7 +197,7 @@ export default function MobilePage() {
             </div>
 
             <h1
-              className="reveal text-[clamp(2.75rem,6vw,5.5rem)] font-bold text-white leading-[0.92] tracking-tight mb-8"
+              className="reveal vel-text text-[clamp(2.75rem,6vw,5.5rem)] font-bold text-white leading-[0.92] tracking-tight mb-8"
               style={{ transitionDelay: "0.1s" }}
             >
               SOSPH is primarily
@@ -127,9 +240,18 @@ export default function MobilePage() {
             </div>
           </div>
 
-          {/* Phone silhouette */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-[180px] h-[320px] border-2 border-white/10 rounded-[2.5rem] bg-white/[0.02] flex flex-col items-center justify-center gap-3 p-6">
+          {/* Phone silhouette with float + scanline */}
+          <div
+            className="hidden lg:flex items-center justify-center"
+            style={{ animation: "float 4s ease-in-out infinite" }}
+          >
+            <div className="relative w-[180px] h-[320px] border-2 border-white/10 rounded-[2.5rem] bg-white/[0.02] flex flex-col items-center justify-center gap-3 p-6 overflow-hidden">
+              {/* Scanline */}
+              <div
+                className="absolute left-0 right-0 h-[2px] bg-white/10 pointer-events-none"
+                style={{ animation: "scanline 3s ease-in-out infinite" }}
+                aria-hidden="true"
+              />
               {/* Top notch */}
               <div className="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-white/10 rounded-full" />
               {/* Screen content */}
@@ -160,7 +282,7 @@ export default function MobilePage() {
               Why mobile matters
             </p>
             <h2
-              className="reveal text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
+              className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
               style={{ transitionDelay: "0.1s" }}
             >
               Emergencies don&apos;t
@@ -179,9 +301,7 @@ export default function MobilePage() {
               offline, detect your location automatically, and let you call or
               share information in seconds.
             </p>
-            <p>
-              Without typing. Without searching. Without navigating three pages.
-            </p>
+            <p>Without typing. Without searching. Without navigating three pages.</p>
             <p>
               The web version of SOSPH is useful for preparation, reference,
               and browsing from home. The mobile app is designed for the moment
@@ -192,13 +312,29 @@ export default function MobilePage() {
       </section>
 
       {/* ── Planned Features ── */}
-      <section className="bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="mb-14">
+      <section
+        ref={featuresSectionRef}
+        className="relative bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden"
+      >
+        <div
+          ref={featuresGridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+          }}
+        />
+        <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-blue-500 via-blue-700/60 to-transparent" />
+
+        <div className="relative mb-14">
           <p className="reveal label-caps text-gray-600 mb-3">
             What&apos;s coming
           </p>
           <h2
-            className="reveal text-3xl md:text-4xl font-bold text-white leading-tight"
+            className="reveal vel-text text-3xl md:text-4xl font-bold text-white leading-tight"
             style={{ transitionDelay: "0.1s" }}
           >
             Planned features.
@@ -212,7 +348,7 @@ export default function MobilePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plannedFeatures.map((feature, i) => (
             <div
               key={feature.num}
@@ -240,7 +376,7 @@ export default function MobilePage() {
             While you wait
           </p>
           <h2
-            className="reveal text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
+            className="reveal vel-text text-3xl md:text-4xl font-bold text-gray-900 leading-tight"
             style={{ transitionDelay: "0.1s" }}
           >
             Available on web now.
@@ -257,19 +393,19 @@ export default function MobilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {
-              href: "/hotlines",
+              href: "/features/hotlines",
               title: "Emergency Hotlines",
               desc: "All Philippine emergency numbers",
               num: "100+",
             },
             {
-              href: "/guides",
+              href: "/features/guides",
               title: "Response Guides",
               desc: "Step-by-step instructions",
               num: "5",
             },
             {
-              href: "/expressways",
+              href: "/features/expressways",
               title: "Expressway Guide",
               desc: "NLEX, SLEX, Skyway, and more",
               num: "5",

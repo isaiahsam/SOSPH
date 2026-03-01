@@ -35,9 +35,9 @@ const dropdowns: Record<
     link: "/",
     linkLabel: "Go to homepage",
     cards: [
-      { title: "Emergency Hotlines", desc: "100+ Philippine emergency numbers, organized by category.", href: "/hotlines" },
-      { title: "Response Guides", desc: "Step-by-step instructions for 5 emergency types.", href: "/guides" },
-      { title: "Expressway Help", desc: "NLEX, SLEX, Skyway, SCTEX, and TPLEX contacts.", href: "/expressways" },
+      { title: "Emergency Hotlines", desc: "100+ Philippine emergency numbers, organized by category.", href: "/features/hotlines" },
+      { title: "Response Guides", desc: "Step-by-step instructions for 5 emergency types.", href: "/features/guides" },
+      { title: "Expressway Help", desc: "NLEX, SLEX, Skyway, SCTEX, and TPLEX contacts.", href: "/features/expressways" },
       { title: "Location Helper", desc: "Get and share your GPS coordinates in one tap.", href: "/about" },
     ],
   },
@@ -48,9 +48,9 @@ const dropdowns: Record<
     link: "/features",
     linkLabel: "View all features",
     cards: [
-      { title: "Hotline Directory", desc: "National, medical, traffic, and expressway numbers.", href: "/hotlines" },
-      { title: "Step-by-Step Guides", desc: "Clear instructions for accidents, fires, floods, and more.", href: "/guides" },
-      { title: "Expressway Networks", desc: "Dedicated contacts for each expressway in the Philippines.", href: "/expressways" },
+      { title: "Hotline Directory", desc: "National, medical, traffic, and expressway numbers.", href: "/features/hotlines" },
+      { title: "Step-by-Step Guides", desc: "Clear instructions for accidents, fires, floods, and more.", href: "/features/guides" },
+      { title: "Expressway Networks", desc: "Dedicated contacts for each expressway in the Philippines.", href: "/features/expressways" },
       { title: "GPS Location Share", desc: "Copy your exact coordinates for first responders.", href: "/about" },
     ],
   },
@@ -64,7 +64,7 @@ const dropdowns: Record<
       { title: "Our Mission", desc: "Why SOSPH exists and who it is built for.", href: "/about" },
       { title: "Features Overview", desc: "A complete look at what SOSPH provides.", href: "/features" },
       { title: "Mobile App", desc: "Coming soon — offline access and one-tap calling.", href: "/mobile" },
-      { title: "Hotline Directory", desc: "Browse all 100+ emergency numbers.", href: "/hotlines" },
+      { title: "Hotline Directory", desc: "Browse all 100+ emergency numbers.", href: "/features/hotlines" },
     ],
   },
 };
@@ -224,7 +224,7 @@ export default function Navigation() {
 
             {/* Emergency CTA */}
             <Link
-              href="/hotlines"
+              href="/features/hotlines"
               className="flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg transition-colors duration-150"
             >
               <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -280,7 +280,7 @@ export default function Navigation() {
             </Link>
           ))}
           <Link
-            href="/hotlines"
+            href="/features/hotlines"
             className="flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-red-600 border-t border-gray-100"
             onClick={() => setMenuOpen(false)}
           >
