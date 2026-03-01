@@ -3,17 +3,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import hotlinesData from "@/data/hotlines.json";
 
-function parallaxSection(
-  section: HTMLElement | null,
-  bgEl: HTMLElement | null,
-  speed: number
-) {
-  if (!section || !bgEl) return;
-  const rect = section.getBoundingClientRect();
-  const viewMid = window.innerHeight / 2;
-  const sectionMid = rect.top + rect.height / 2;
-  bgEl.style.transform = `translateY(${(sectionMid - viewMid) * speed}px)`;
-}
 
 const MARQUEE_ITEMS = [
   "911",
