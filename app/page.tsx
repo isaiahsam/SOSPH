@@ -1,71 +1,156 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import hotlinesData from "@/data/hotlines.json";
 import guidesData from "@/data/guides.json";
 
 const ArrowRight = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M17 8l4 4m0 0l-4 4m4-4H3"
-    />
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
   </svg>
 );
 
 const PhoneIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-    />
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
   </svg>
 );
+
+const STATS = [
+  { target: 100, suffix: "+", label: "Emergency hotlines" },
+  { target: 5,   suffix: "",  label: "Response guides" },
+  { target: 5,   suffix: "",  label: "Expressway networks" },
+  { target: 0,   suffix: "s", label: "Wait time to use" },
+];
 
 export default function HomePage() {
   const nationalHotlines = hotlinesData.categories[0].hotlines;
   const guides = guidesData.guides;
 
+  /* ── Refs ── */
+  const heroRef          = useRef<HTMLElement>(null);
+  const gridRef          = useRef<HTMLDivElement>(null);
+  const glowRef          = useRef<HTMLDivElement>(null);
+  const spotlightRef     = useRef<HTMLDivElement>(null);
+  const progressRef      = useRef<HTMLDivElement>(null);
+  const phone1Ref        = useRef<HTMLDivElement>(null);
+  const phone2Ref        = useRef<HTMLDivElement>(null);
+  const statsRef         = useRef<HTMLElement>(null);
+
+  /* ── Animated counters ── */
+  const [counters, setCounters] = useState(STATS.map(() => 0));
+
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    /* ── Scroll reveal observer ── */
+    const revealObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
         });
       },
       { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
     );
+    document
+      .querySelectorAll(".reveal, .reveal-left, .reveal-right, .reveal-scale")
+      .forEach((el) => revealObserver.observe(el));
 
-    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    /* ── Stats counter ── */
+    let statsTriggered = false;
+    const statsObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !statsTriggered) {
+          statsTriggered = true;
+          const duration = 1500;
+          const start = performance.now();
+          const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+          const tick = () => {
+            const p = Math.min((performance.now() - start) / duration, 1);
+            const e = easeOut(p);
+            setCounters(STATS.map((s) => Math.round(s.target * e)));
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          statsObserver.disconnect();
+        }
+      },
+      { threshold: 0.6 }
+    );
+    if (statsRef.current) statsObserver.observe(statsRef.current);
+
+    /* ── Parallax + progress bar (lerp for velocity feel) ── */
+    let rafId: number;
+    let smoothY = window.scrollY;
+    let rawY    = window.scrollY;
+
+    const onScroll = () => { rawY = window.scrollY; };
+
+    const frame = () => {
+      smoothY += (rawY - smoothY) * 0.09; // lerp — gives inertia / velocity feel
+
+      /* Scroll progress bar */
+      if (progressRef.current) {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progressRef.current.style.width = max > 0 ? `${(smoothY / max) * 100}%` : "0%";
+      }
+
+      /* Hero parallax — only while hero is visible */
+      const heroH = heroRef.current?.offsetHeight ?? 900;
+      if (smoothY < heroH * 1.4) {
+        if (gridRef.current)
+          gridRef.current.style.transform = `translateY(${smoothY * 0.22}px)`;
+        if (glowRef.current)
+          glowRef.current.style.transform = `translateY(${smoothY * 0.42}px)`;
+        /* Phones float upward slightly faster than background — depth illusion */
+        if (phone1Ref.current)
+          phone1Ref.current.style.transform = `translateY(${-smoothY * 0.07}px)`;
+        if (phone2Ref.current)
+          phone2Ref.current.style.transform = `translateY(${-smoothY * 0.13}px)`;
+      }
+
+      rafId = requestAnimationFrame(frame);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    rafId = requestAnimationFrame(frame);
+
+    return () => {
+      revealObserver.disconnect();
+      statsObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
+
+  /* ── Mouse spotlight in hero ── */
+  const handleHeroMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      if (!spotlightRef.current || !heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlightRef.current.style.background = `radial-gradient(ellipse 50% 50% at ${x}% ${y}%, rgba(220,38,38,0.07) 0%, transparent 65%)`;
+    },
+    []
+  );
 
   return (
     <div className="overflow-x-hidden">
-      {/* ── HERO ── */}
-      <section className="relative min-h-screen bg-[#0D1117] flex items-center overflow-hidden">
-        {/* Grid pattern */}
+      {/* ── Scroll progress bar ── */}
+      <div ref={progressRef} className="scroll-progress" aria-hidden="true" />
+
+      {/* ══════════════════════════════
+          HERO
+      ══════════════════════════════ */}
+      <section
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        className="relative min-h-screen bg-[#0D1117] flex items-center overflow-hidden"
+      >
+        {/* Grid pattern — moves slower than page (parallax bg) */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={gridRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
@@ -74,26 +159,34 @@ export default function HomePage() {
             backgroundSize: "60px 60px",
           }}
         />
-        {/* Red glow */}
+
+        {/* Red glow — parallax mid-layer */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          ref={glowRef}
+          className="absolute inset-0 pointer-events-none will-change-transform"
           style={{
             background:
               "radial-gradient(ellipse 60% 50% at 15% 60%, rgba(220,38,38,0.13) 0%, transparent 70%)",
           }}
         />
+
+        {/* Mouse spotlight overlay */}
+        <div
+          ref={spotlightRef}
+          className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
+        />
+
         {/* Left accent bar */}
         <div className="absolute top-0 left-0 w-[3px] h-full bg-gradient-to-b from-red-600 via-red-700/60 to-transparent" />
 
         <div className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 py-32 md:py-40">
           <div className="grid lg:grid-cols-[1fr_460px] gap-8 xl:gap-12 items-center">
-            {/* Text */}
+
+            {/* ── Text column ── */}
             <div>
               <div className="reveal inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] text-white/50 text-xs font-medium px-3 py-1.5 rounded-full mb-10">
-                <span
-                  className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"
-                  aria-hidden="true"
-                />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" aria-hidden="true" />
                 Mobile app coming soon · Web available now
               </div>
 
@@ -116,20 +209,17 @@ export default function HomePage() {
                 ready to share. Open and use, no login required.
               </p>
 
-              <div
-                className="reveal flex flex-wrap gap-4"
-                style={{ transitionDelay: "0.3s" }}
-              >
+              <div className="reveal flex flex-wrap gap-4" style={{ transitionDelay: "0.3s" }}>
                 <Link
                   href="/hotlines"
-                  className="group inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-semibold px-6 py-3.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
+                  className="btn-shimmer group inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-semibold px-6 py-3.5 rounded-lg hover:bg-gray-100 hover:scale-[1.03] transition-all duration-200"
                 >
                   Emergency Hotlines
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
                 </Link>
                 <Link
                   href="/about"
-                  className="group inline-flex items-center gap-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 text-sm font-semibold px-6 py-3.5 rounded-lg transition-all duration-200"
+                  className="group inline-flex items-center gap-2 border border-white/20 text-white/70 hover:text-white hover:border-white/40 hover:scale-[1.03] text-sm font-semibold px-6 py-3.5 rounded-lg transition-all duration-200"
                 >
                   Learn More
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
@@ -137,247 +227,305 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Floating phone screens */}
+            {/* ── Phone mockups ── */}
             <div className="hidden lg:flex flex-col items-center gap-6">
               <div className="relative" style={{ width: "440px", height: "520px" }}>
 
-                {/* ── Screen 1: Splash (back, tilted left) ── */}
+                {/* ── Screen 1: Splash (back) — parallax wrapper ── */}
                 <div
-                  className="reveal absolute inset-0 flex items-center justify-center"
-                  style={{ zIndex: 1, transitionDelay: "0.4s" }}
+                  ref={phone1Ref}
+                  className="absolute inset-0 will-change-transform"
+                  style={{ zIndex: 1 }}
                 >
-                  <div style={{ transform: "rotate(-10deg) translate(-85px, -18px)" }}>
-                    <div
-                      className="rounded-[30px] overflow-hidden flex flex-col"
-                      style={{
-                        width: "210px",
-                        height: "410px",
-                        background: "#0D1117",
-                        backgroundImage: `
-                          radial-gradient(ellipse 90% 70% at 50% 42%, rgba(220,38,38,0.16) 0%, transparent 65%),
-                          repeating-radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 12%, rgba(255,255,255,0.03) 12.5%, transparent 13%),
-                          linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
-                        `,
-                        backgroundSize: "auto, auto, 50px 50px, 50px 50px",
-                        boxShadow: "0 40px 80px -12px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.07)",
-                      }}
-                    >
-                      {/* Top label */}
-                      <div className="flex flex-col items-center pt-8">
-                        <div className="text-[9px] font-bold text-white tracking-[0.22em]">SOSPH</div>
-                        <div className="text-[6.5px] text-white/20 tracking-[0.12em] uppercase mt-0.5">
-                          Critical Response System
-                        </div>
-                      </div>
-
-                      {/* Center — SOS rings + button */}
-                      <div className="flex-1 flex flex-col items-center justify-center gap-5">
-                        <div className="relative flex items-center justify-center">
-                          <div
-                            className="absolute rounded-full border border-red-600/12 animate-pulse"
-                            style={{ width: "136px", height: "136px" }}
-                          />
-                          <div
-                            className="absolute rounded-full border border-red-600/20"
-                            style={{ width: "104px", height: "104px" }}
-                          />
-                          <div
-                            className="absolute rounded-full border border-red-600/30"
-                            style={{ width: "76px", height: "76px" }}
-                          />
-                          <div
-                            className="relative rounded-full bg-red-600 flex items-center justify-center"
-                            style={{
-                              width: "54px",
-                              height: "54px",
-                              boxShadow: "0 0 32px rgba(220,38,38,0.6), 0 0 64px rgba(220,38,38,0.25)",
-                            }}
-                          >
-                            <span className="text-[11px] font-bold text-white tracking-[0.15em]">SOS</span>
-                          </div>
-                        </div>
-                        <div className="text-center px-6">
-                          <div className="text-[15px] font-bold text-white tracking-tight leading-tight">
-                            After-Emergency
-                          </div>
-                          <div className="text-[9px] text-white/30 mt-1">Response for Filipinos</div>
-                        </div>
-                      </div>
-
-                      {/* Bottom CTA */}
-                      <div className="px-6 pb-7 flex flex-col items-center gap-3">
+                  <div
+                    className="reveal h-full flex items-center justify-center"
+                    style={{ transitionDelay: "0.4s" }}
+                  >
+                    {/* Float animation wrapper */}
+                    <div style={{ animation: "float 6s ease-in-out infinite" }}>
+                      <div style={{ transform: "rotate(-10deg) translate(-85px, -18px)" }}>
                         <div
-                          className="w-full bg-red-600 rounded-2xl py-3 flex items-center justify-center"
-                          style={{ boxShadow: "0 4px 16px rgba(220,38,38,0.38)" }}
+                          className="rounded-[30px] overflow-hidden flex flex-col relative"
+                          style={{
+                            width: "210px",
+                            height: "410px",
+                            background: "#0D1117",
+                            backgroundImage: `
+                              radial-gradient(ellipse 90% 70% at 50% 42%, rgba(220,38,38,0.16) 0%, transparent 65%),
+                              repeating-radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 12%, rgba(255,255,255,0.03) 12.5%, transparent 13%),
+                              linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
+                            `,
+                            backgroundSize: "auto, auto, 50px 50px, 50px 50px",
+                            boxShadow:
+                              "0 40px 80px -12px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.07)",
+                          }}
                         >
-                          <span className="text-[11px] font-bold text-white tracking-wide">
-                            Get Started
-                          </span>
+                          {/* Scan line sweep */}
+                          <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 20 }}>
+                            <div
+                              className="absolute left-0 right-0 h-[1px]"
+                              style={{
+                                background:
+                                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.09), transparent)",
+                                animation: "scanline 7s linear 1s infinite",
+                              }}
+                            />
+                          </div>
+
+                          {/* Top label */}
+                          <div className="flex flex-col items-center pt-8">
+                            <div className="text-[9px] font-bold text-white tracking-[0.22em]">SOSPH</div>
+                            <div className="text-[6.5px] text-white/20 tracking-[0.12em] uppercase mt-0.5">
+                              Critical Response System
+                            </div>
+                          </div>
+
+                          {/* SOS rings */}
+                          <div className="flex-1 flex flex-col items-center justify-center gap-5">
+                            <div className="relative flex items-center justify-center">
+                              <div
+                                className="absolute rounded-full border border-red-600/12"
+                                style={{
+                                  width: "136px",
+                                  height: "136px",
+                                  animation: "glow-ring 3s ease-in-out infinite",
+                                }}
+                              />
+                              <div
+                                className="absolute rounded-full border border-red-600/20"
+                                style={{
+                                  width: "104px",
+                                  height: "104px",
+                                  animation: "glow-ring 3s ease-in-out 0.6s infinite",
+                                }}
+                              />
+                              <div
+                                className="absolute rounded-full border border-red-600/30"
+                                style={{ width: "76px", height: "76px" }}
+                              />
+                              <div
+                                className="relative rounded-full bg-red-600 flex items-center justify-center"
+                                style={{
+                                  width: "54px",
+                                  height: "54px",
+                                  boxShadow:
+                                    "0 0 32px rgba(220,38,38,0.6), 0 0 64px rgba(220,38,38,0.25)",
+                                }}
+                              >
+                                <span className="text-[11px] font-bold text-white tracking-[0.15em]">
+                                  SOS
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-center px-6">
+                              <div className="text-[15px] font-bold text-white tracking-tight leading-tight">
+                                After-Emergency
+                              </div>
+                              <div className="text-[9px] text-white/30 mt-1">
+                                Response for Filipinos
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bottom CTA */}
+                          <div className="px-6 pb-7 flex flex-col items-center gap-3">
+                            <div
+                              className="w-full bg-red-600 rounded-2xl py-3 flex items-center justify-center"
+                              style={{ boxShadow: "0 4px 16px rgba(220,38,38,0.38)" }}
+                            >
+                              <span className="text-[11px] font-bold text-white tracking-wide">
+                                Get Started
+                              </span>
+                            </div>
+                            <span className="text-[6.5px] text-white/15 tracking-[0.18em] uppercase">
+                              by Looma Labs
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-[6.5px] text-white/15 tracking-[0.18em] uppercase">
-                          by Looma Labs
-                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* ── Screen 2: Main app (front, slight right tilt) ── */}
+                {/* ── Screen 2: Main app (front) — parallax wrapper ── */}
                 <div
-                  className="reveal absolute inset-0 flex items-center justify-center"
-                  style={{ zIndex: 2, transitionDelay: "0.52s" }}
+                  ref={phone2Ref}
+                  className="absolute inset-0 will-change-transform"
+                  style={{ zIndex: 2 }}
                 >
-                  <div style={{ transform: "rotate(6deg) translate(75px, 30px)" }}>
-                    <div
-                      className="rounded-[30px] overflow-hidden flex flex-col"
-                      style={{
-                        width: "210px",
-                        height: "410px",
-                        background: "#0A0E1A",
-                        boxShadow: "0 40px 80px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07)",
-                      }}
-                    >
-                      {/* Status bar */}
-                      <div className="relative flex items-center justify-between px-4 pt-3 pb-0 flex-shrink-0">
-                        <span className="text-[7.5px] font-medium text-white/35">9:41</span>
+                  <div
+                    className="reveal h-full flex items-center justify-center"
+                    style={{ transitionDelay: "0.52s" }}
+                  >
+                    {/* Float — offset phase for depth */}
+                    <div style={{ animation: "float-b 5s ease-in-out 1s infinite" }}>
+                      <div style={{ transform: "rotate(6deg) translate(75px, 30px)" }}>
                         <div
-                          className="absolute left-1/2 -translate-x-1/2 top-2.5 bg-black rounded-full"
-                          style={{ width: "62px", height: "17px" }}
-                        />
-                        <div className="flex items-center gap-1">
-                          <div className="flex items-end gap-[1.5px]" style={{ height: "9px" }}>
-                            {[3, 5, 7, 9].map((h) => (
-                              <div
-                                key={h}
-                                className="w-[2px] bg-white/35 rounded-[1px]"
-                                style={{ height: `${h}px` }}
-                              />
-                            ))}
-                          </div>
-                          <div className="relative ml-1" style={{ width: "13px", height: "7px" }}>
-                            <div className="absolute inset-0 border border-white/35 rounded-[2px]" />
+                          className="rounded-[30px] overflow-hidden flex flex-col relative"
+                          style={{
+                            width: "210px",
+                            height: "410px",
+                            background: "#0A0E1A",
+                            boxShadow:
+                              "0 40px 80px -12px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07)",
+                          }}
+                        >
+                          {/* Scan line sweep (offset timing) */}
+                          <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 20 }}>
                             <div
-                              className="absolute top-[1px] left-[1px] bottom-[1px] bg-white/35 rounded-[1px]"
-                              style={{ width: "65%" }}
-                            />
-                            <div
-                              className="absolute bg-white/35 rounded-r-[1px]"
-                              style={{ right: "-2.5px", top: "2px", width: "2px", height: "3px" }}
+                              className="absolute left-0 right-0 h-[1px]"
+                              style={{
+                                background:
+                                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)",
+                                animation: "scanline 9s linear 3s infinite",
+                              }}
                             />
                           </div>
-                        </div>
-                      </div>
 
-                      {/* App body */}
-                      <div className="flex-1 flex flex-col px-4 pt-3.5 pb-5 gap-3">
-                        {/* Header */}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-[6.5px] text-white/20 tracking-[0.1em] uppercase mb-0.5">
-                              After-Emergency
+                          {/* Status bar */}
+                          <div className="relative flex items-center justify-between px-4 pt-3 pb-0 flex-shrink-0">
+                            <span className="text-[7.5px] font-medium text-white/35">9:41</span>
+                            <div
+                              className="absolute left-1/2 -translate-x-1/2 top-2.5 bg-black rounded-full"
+                              style={{ width: "62px", height: "17px" }}
+                            />
+                            <div className="flex items-center gap-1">
+                              <div className="flex items-end gap-[1.5px]" style={{ height: "9px" }}>
+                                {[3, 5, 7, 9].map((h) => (
+                                  <div
+                                    key={h}
+                                    className="w-[2px] bg-white/35 rounded-[1px]"
+                                    style={{ height: `${h}px` }}
+                                  />
+                                ))}
+                              </div>
+                              <div className="relative ml-1" style={{ width: "13px", height: "7px" }}>
+                                <div className="absolute inset-0 border border-white/35 rounded-[2px]" />
+                                <div
+                                  className="absolute top-[1px] left-[1px] bottom-[1px] bg-white/35 rounded-[1px]"
+                                  style={{ width: "65%" }}
+                                />
+                                <div
+                                  className="absolute bg-white/35 rounded-r-[1px]"
+                                  style={{ right: "-2.5px", top: "2px", width: "2px", height: "3px" }}
+                                />
+                              </div>
                             </div>
-                            <div className="text-[14px] font-bold leading-none">
-                              <span className="text-white">SOS</span>
-                              <span className="text-red-500">PH</span>
-                            </div>
                           </div>
-                          <div
-                            className="rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center"
-                            style={{ width: "26px", height: "26px" }}
-                          >
-                            <svg
-                              className="text-white/25"
-                              style={{ width: "12px", height: "12px" }}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              aria-hidden="true"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                              />
-                            </svg>
-                          </div>
-                        </div>
 
-                        {/* Location */}
-                        <div className="bg-blue-950/50 border border-blue-500/20 rounded-2xl p-3">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <div
-                              className="bg-blue-400 rounded-full animate-pulse flex-shrink-0"
-                              style={{ width: "6px", height: "6px" }}
-                              aria-hidden="true"
-                            />
-                            <span className="text-[6.5px] text-blue-400 font-medium tracking-[0.08em] uppercase">
-                              Location Detected
-                            </span>
-                          </div>
-                          <div className="text-white/75 text-[9px] font-mono">
-                            14.5995° N, 120.9842° E
-                          </div>
-                          <div className="text-white/20 text-[7px] mt-0.5">Tap to copy and share</div>
-                        </div>
-
-                        {/* Quick Dial */}
-                        <div>
-                          <div className="text-[6.5px] text-white/20 uppercase tracking-[0.1em] mb-2">
-                            Quick Dial
-                          </div>
-                          {[
-                            { num: "911", label: "Emergency Hotline" },
-                            { num: "143", label: "Philippine Red Cross" },
-                            { num: "117", label: "PNP Police" },
-                          ].map(({ num, label }) => (
-                            <div
-                              key={num}
-                              className="flex items-center justify-between bg-white/[0.035] border border-white/[0.07] rounded-xl px-3 py-2 mb-1.5"
-                            >
+                          {/* App body */}
+                          <div className="flex-1 flex flex-col px-4 pt-3.5 pb-5 gap-3">
+                            <div className="flex items-center justify-between">
                               <div>
-                                <div className="text-[11px] font-bold font-mono text-white leading-none">
-                                  {num}
+                                <div className="text-[6.5px] text-white/20 tracking-[0.1em] uppercase mb-0.5">
+                                  After-Emergency
                                 </div>
-                                <div className="text-[6.5px] text-white/25 mt-0.5">{label}</div>
+                                <div className="text-[14px] font-bold leading-none">
+                                  <span className="text-white">SOS</span>
+                                  <span className="text-red-500">PH</span>
+                                </div>
                               </div>
                               <div
-                                className="bg-red-600 rounded-full flex items-center justify-center flex-shrink-0"
-                                style={{ width: "21px", height: "21px" }}
+                                className="rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center"
+                                style={{ width: "26px", height: "26px" }}
                               >
                                 <svg
-                                  className="text-white"
-                                  style={{ width: "10px", height: "10px" }}
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
+                                  className="text-white/25"
+                                  style={{ width: "12px", height: "12px" }}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
                                   aria-hidden="true"
                                 >
-                                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                                  />
                                 </svg>
                               </div>
                             </div>
-                          ))}
-                        </div>
 
-                        {/* SOS button */}
-                        <div className="flex-1 flex items-end justify-center">
-                          <div className="relative">
-                            <div
-                              className="absolute inset-0 rounded-full bg-red-600/20 scale-[1.35] animate-pulse"
-                              aria-hidden="true"
-                            />
-                            <div
-                              className="relative bg-red-600 rounded-full flex items-center justify-center"
-                              style={{
-                                width: "52px",
-                                height: "52px",
-                                boxShadow: "0 0 24px rgba(220,38,38,0.5)",
-                              }}
-                            >
-                              <span className="text-[10px] font-bold text-white tracking-[0.15em]">
-                                SOS
-                              </span>
+                            {/* Location */}
+                            <div className="bg-blue-950/50 border border-blue-500/20 rounded-2xl p-3">
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <div
+                                  className="bg-blue-400 rounded-full animate-pulse flex-shrink-0"
+                                  style={{ width: "6px", height: "6px" }}
+                                  aria-hidden="true"
+                                />
+                                <span className="text-[6.5px] text-blue-400 font-medium tracking-[0.08em] uppercase">
+                                  Location Detected
+                                </span>
+                              </div>
+                              <div className="text-white/75 text-[9px] font-mono">
+                                14.5995° N, 120.9842° E
+                              </div>
+                              <div className="text-white/20 text-[7px] mt-0.5">
+                                Tap to copy and share
+                              </div>
+                            </div>
+
+                            {/* Quick Dial */}
+                            <div>
+                              <div className="text-[6.5px] text-white/20 uppercase tracking-[0.1em] mb-2">
+                                Quick Dial
+                              </div>
+                              {[
+                                { num: "911", label: "Emergency Hotline" },
+                                { num: "143", label: "Philippine Red Cross" },
+                                { num: "117", label: "PNP Police" },
+                              ].map(({ num, label }) => (
+                                <div
+                                  key={num}
+                                  className="flex items-center justify-between bg-white/[0.035] border border-white/[0.07] rounded-xl px-3 py-2 mb-1.5"
+                                >
+                                  <div>
+                                    <div className="text-[11px] font-bold font-mono text-white leading-none">
+                                      {num}
+                                    </div>
+                                    <div className="text-[6.5px] text-white/25 mt-0.5">{label}</div>
+                                  </div>
+                                  <div
+                                    className="bg-red-600 rounded-full flex items-center justify-center flex-shrink-0"
+                                    style={{ width: "21px", height: "21px" }}
+                                  >
+                                    <svg
+                                      className="text-white"
+                                      style={{ width: "10px", height: "10px" }}
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                      aria-hidden="true"
+                                    >
+                                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* SOS button */}
+                            <div className="flex-1 flex items-end justify-center">
+                              <div className="relative">
+                                <div
+                                  className="absolute inset-0 rounded-full bg-red-600/20 scale-[1.35] animate-pulse"
+                                  aria-hidden="true"
+                                />
+                                <div
+                                  className="relative bg-red-600 rounded-full flex items-center justify-center"
+                                  style={{
+                                    width: "52px",
+                                    height: "52px",
+                                    boxShadow: "0 0 24px rgba(220,38,38,0.5)",
+                                  }}
+                                >
+                                  <span className="text-[10px] font-bold text-white tracking-[0.15em]">
+                                    SOS
+                                  </span>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -392,10 +540,7 @@ export default function HomePage() {
                 className="reveal inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] text-white/50 text-xs font-medium px-3 py-1.5 rounded-full"
                 style={{ transitionDelay: "0.65s" }}
               >
-                <span
-                  className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"
-                  aria-hidden="true"
-                />
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" aria-hidden="true" />
                 Mobile app — coming soon
               </div>
             </div>
@@ -408,23 +553,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS STRIP ── */}
-      <section className="bg-red-600 py-8">
+      {/* ══════════════════════════════
+          STATS STRIP
+      ══════════════════════════════ */}
+      <section ref={statsRef} className="bg-red-600 py-8">
         <div className="px-6 sm:px-10 lg:px-16 xl:px-24">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-red-500">
-            {[
-              { value: "100+", label: "Emergency hotlines" },
-              { value: "5", label: "Response guides" },
-              { value: "5", label: "Expressway networks" },
-              { value: "0s", label: "Wait time to use" },
-            ].map((stat, i) => (
+            {STATS.map((stat, i) => (
               <div
                 key={stat.label}
                 className="reveal text-center md:px-8"
                 style={{ transitionDelay: `${i * 0.08}s` }}
               >
-                <div className="text-3xl xl:text-4xl font-bold text-white">
-                  {stat.value}
+                <div className="text-3xl xl:text-4xl font-bold text-white tabular-nums">
+                  {counters[i]}{stat.suffix}
                 </div>
                 <div className="text-xs text-red-200 mt-1 uppercase tracking-widest">
                   {stat.label}
@@ -435,12 +577,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
+      {/* ══════════════════════════════
+          FEATURES
+      ══════════════════════════════ */}
       <section className="bg-white py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="mb-16">
-          <p className="reveal label-caps text-gray-400 mb-3">
-            What SOSPH gives you
-          </p>
+          <p className="reveal label-caps text-gray-400 mb-3">What SOSPH gives you</p>
           <h2
             className="reveal text-4xl md:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight"
             style={{ transitionDelay: "0.1s" }}
@@ -482,45 +624,43 @@ export default function HomePage() {
               href: "/about",
             },
           ].map((feature, i) => (
-            <Link
+            /* reveal wrapper keeps entrance animation separate from hover transforms */
+            <div
               key={feature.num}
-              href={feature.href}
-              className="reveal group flex flex-col p-7 bg-gray-50 border border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              style={{ transitionDelay: `${i * 0.08}s` }}
+              className="reveal-scale"
+              style={{ transitionDelay: `${i * 0.09}s` }}
             >
-              <span className="font-mono text-xs text-gray-300 mb-8 group-hover:text-red-500 transition-colors duration-300">
-                {feature.num}
-              </span>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  {feature.desc}
-                </p>
-              </div>
-              {/* Hover reveal detail */}
-              <div className="overflow-hidden max-h-0 group-hover:max-h-12 transition-all duration-300 mt-0 group-hover:mt-4">
-                <p className="text-xs text-red-600 font-medium">
-                  {feature.detail}
-                </p>
-              </div>
-              <div className="mt-6 flex items-center gap-1.5 text-xs font-semibold text-gray-300 group-hover:text-gray-900 transition-colors duration-300">
-                <span>Explore</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
-              </div>
-            </Link>
+              <Link
+                href={feature.href}
+                className="group flex flex-col h-full p-7 bg-gray-50 border border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-white hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+              >
+                <span className="font-mono text-xs text-gray-300 mb-8 group-hover:text-red-500 transition-colors duration-300">
+                  {feature.num}
+                </span>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{feature.desc}</p>
+                </div>
+                <div className="overflow-hidden max-h-0 group-hover:max-h-12 transition-all duration-300 mt-0 group-hover:mt-4">
+                  <p className="text-xs text-red-600 font-medium">{feature.detail}</p>
+                </div>
+                <div className="mt-6 flex items-center gap-1.5 text-xs font-semibold text-gray-300 group-hover:text-gray-900 transition-colors duration-300">
+                  <span>Explore</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── HOTLINES ── */}
+      {/* ══════════════════════════════
+          HOTLINES
+      ══════════════════════════════ */}
       <section className="bg-[#0D1117] py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
           <div>
-            <p className="reveal label-caps text-gray-600 mb-3">
-              Critical numbers
-            </p>
+            <p className="reveal label-caps text-gray-600 mb-3">Critical numbers</p>
             <h2
               className="reveal text-4xl md:text-5xl font-bold text-white leading-tight"
               style={{ transitionDelay: "0.1s" }}
@@ -539,37 +679,38 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
           {nationalHotlines.map((hotline, i) => (
-            <a
+            <div
               key={hotline.id}
-              href={`tel:${hotline.number.replace(/[^0-9+]/g, "")}`}
-              className="reveal group relative flex flex-col p-5 bg-white/[0.03] border border-white/10 rounded-xl hover:bg-white/[0.08] hover:border-red-500/40 transition-all duration-300 overflow-hidden"
+              className="reveal-scale"
               style={{ transitionDelay: `${i * 0.07}s` }}
             >
-              <div className="font-mono font-bold text-xl text-white mb-2 group-hover:text-red-400 transition-colors duration-300">
-                {hotline.number}
-              </div>
-              <div className="text-xs text-gray-500 leading-snug group-hover:text-gray-400 transition-colors duration-300">
-                {hotline.name}
-              </div>
-              {/* Hover reveal call prompt */}
-              <div className="absolute bottom-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                <PhoneIcon className="w-3.5 h-3.5 text-red-500" />
-                <span className="text-xs text-red-500 font-medium">
-                  Tap to call
-                </span>
-              </div>
-            </a>
+              <a
+                href={`tel:${hotline.number.replace(/[^0-9+]/g, "")}`}
+                className="hotline-card-glow group relative flex flex-col p-5 bg-white/[0.03] border border-white/10 rounded-xl hover:bg-white/[0.07] hover:border-red-500/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden block"
+              >
+                <div className="font-mono font-bold text-xl text-white mb-2 group-hover:text-red-400 transition-colors duration-300">
+                  {hotline.number}
+                </div>
+                <div className="text-xs text-gray-500 leading-snug group-hover:text-gray-400 transition-colors duration-300">
+                  {hotline.name}
+                </div>
+                <div className="absolute bottom-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <PhoneIcon className="w-3.5 h-3.5 text-red-500" />
+                  <span className="text-xs text-red-500 font-medium">Tap to call</span>
+                </div>
+              </a>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── GUIDES ── */}
+      {/* ══════════════════════════════
+          GUIDES
+      ══════════════════════════════ */}
       <section className="bg-gray-50 py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
           <div>
-            <p className="reveal label-caps text-gray-400 mb-3">
-              Step-by-step
-            </p>
+            <p className="reveal label-caps text-gray-400 mb-3">Step-by-step</p>
             <h2
               className="reveal text-4xl md:text-5xl font-bold text-gray-900 leading-tight"
               style={{ transitionDelay: "0.1s" }}
@@ -588,59 +729,56 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {guides.map((guide, i) => (
-            <Link
+            <div
               key={guide.id}
-              href={`/guides/${guide.id}`}
-              className="reveal group flex flex-col p-6 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
-              style={{ transitionDelay: `${i * 0.08}s` }}
+              className="reveal-scale"
+              style={{ transitionDelay: `${i * 0.09}s` }}
             >
-              <div className="flex items-start justify-between mb-5">
-                <span className="font-mono text-xs text-gray-300 group-hover:text-gray-400 transition-colors">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors">
-                  {guide.steps.length} steps
-                </span>
-              </div>
-
-              <h3 className="text-base font-semibold text-gray-900 mb-2">
-                {guide.title}
-              </h3>
-              <p className="text-xs text-gray-400">
-                Call{" "}
-                <span className="text-red-600 font-semibold">
-                  {guide.callFirst[0]}
-                </span>{" "}
-                first
-              </p>
-
-              {/* Hover reveal: first step */}
-              <div className="overflow-hidden max-h-0 group-hover:max-h-24 transition-all duration-300">
-                <div className="mt-4 border-l-2 border-red-200 pl-3">
-                  <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                    Step 1: {guide.steps[0]?.instruction}
-                  </p>
+              <Link
+                href={`/guides/${guide.id}`}
+                className="group flex flex-col h-full p-6 bg-white border border-gray-100 rounded-2xl hover:border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-5">
+                  <span className="font-mono text-xs text-gray-300 group-hover:text-gray-400 transition-colors">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors">
+                    {guide.steps.length} steps
+                  </span>
                 </div>
-              </div>
-
-              <div className="mt-auto pt-5 flex items-center gap-1.5 text-xs font-semibold text-gray-300 group-hover:text-gray-700 transition-colors duration-300">
-                <span>Read guide</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
-              </div>
-            </Link>
+                <h3 className="text-base font-semibold text-gray-900 mb-2">{guide.title}</h3>
+                <p className="text-xs text-gray-400">
+                  Call{" "}
+                  <span className="text-red-600 font-semibold">{guide.callFirst[0]}</span> first
+                </p>
+                <div className="overflow-hidden max-h-0 group-hover:max-h-24 transition-all duration-300">
+                  <div className="mt-4 border-l-2 border-red-200 pl-3">
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                      Step 1: {guide.steps[0]?.instruction}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-auto pt-5 flex items-center gap-1.5 text-xs font-semibold text-gray-300 group-hover:text-gray-700 transition-colors duration-300">
+                  <span>Read guide</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </Link>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── WHY SOSPH ── */}
+      {/* ══════════════════════════════
+          WHY SOSPH
+      ══════════════════════════════ */}
       <section className="bg-white py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24 items-center">
+
+          {/* Left — slides in from left */}
           <div>
-            <p className="reveal label-caps text-gray-400 mb-4">
-              Why this exists
-            </p>
+            <p className="reveal-left label-caps text-gray-400 mb-4">Why this exists</p>
             <h2
-              className="reveal text-4xl md:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-6"
+              className="reveal-left text-4xl md:text-5xl xl:text-6xl font-bold text-gray-900 leading-tight mb-6"
               style={{ transitionDelay: "0.1s" }}
             >
               Google shows
@@ -654,7 +792,7 @@ export default function HomePage() {
               </span>
             </h2>
             <p
-              className="reveal text-base text-gray-500 leading-relaxed max-w-md"
+              className="reveal-left text-base text-gray-500 leading-relaxed max-w-md"
               style={{ transitionDelay: "0.2s" }}
             >
               SOSPH fills the gap — verified Philippine hotlines, clear
@@ -663,6 +801,7 @@ export default function HomePage() {
             </p>
           </div>
 
+          {/* Right — slides in from right */}
           <div className="space-y-4">
             {[
               {
@@ -683,21 +822,15 @@ export default function HomePage() {
             ].map((item, i) => (
               <div
                 key={item.title}
-                className="reveal group flex gap-5 p-6 bg-gray-50 border border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-white hover:shadow-md transition-all duration-300"
+                className="reveal-right group flex gap-5 p-6 bg-gray-50 border border-gray-100 rounded-2xl hover:border-gray-200 hover:bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
                 style={{ transitionDelay: `${i * 0.1}s` }}
               >
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-900 group-hover:bg-red-600 rounded-xl transition-colors duration-300">
-                  <span className="text-xs font-bold text-white font-mono">
-                    {item.badge}
-                  </span>
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-900 group-hover:bg-red-600 group-hover:scale-110 rounded-xl transition-all duration-300">
+                  <span className="text-xs font-bold text-white font-mono">{item.badge}</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900 mb-1">
-                    {item.title}
-                  </p>
-                  <p className="text-sm text-gray-500 leading-relaxed">
-                    {item.desc}
-                  </p>
+                  <p className="text-sm font-semibold text-gray-900 mb-1">{item.title}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -705,7 +838,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── MOBILE CTA ── */}
+      {/* ══════════════════════════════
+          MOBILE CTA
+      ══════════════════════════════ */}
       <section className="relative bg-[#0D1117] py-28 sm:py-36 px-6 sm:px-10 lg:px-16 xl:px-24 overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
@@ -727,10 +862,7 @@ export default function HomePage() {
 
         <div className="relative max-w-3xl">
           <div className="reveal inline-flex items-center gap-2 border border-white/10 bg-white/[0.03] text-white/50 text-xs font-medium px-3 py-1.5 rounded-full mb-8">
-            <span
-              className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"
-              aria-hidden="true"
-            />
+            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" aria-hidden="true" />
             Coming soon on Mobile
           </div>
 
@@ -751,14 +883,15 @@ export default function HomePage() {
             GPS sharing — designed for the moment of an emergency.
           </p>
 
-          <Link
-            href="/mobile"
-            className="reveal group inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-semibold px-6 py-3.5 rounded-lg hover:bg-gray-100 transition-all duration-200"
-            style={{ transitionDelay: "0.3s" }}
-          >
-            Learn about the app
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-          </Link>
+          <div className="reveal" style={{ transitionDelay: "0.3s" }}>
+            <Link
+              href="/mobile"
+              className="btn-shimmer group inline-flex items-center gap-2 bg-white text-gray-900 text-sm font-semibold px-6 py-3.5 rounded-lg hover:bg-gray-100 hover:scale-[1.03] transition-all duration-200"
+            >
+              Learn about the app
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            </Link>
+          </div>
         </div>
       </section>
     </div>
